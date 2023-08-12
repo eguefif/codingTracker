@@ -8,3 +8,11 @@ line-length = 80
 [tool.isort]
 profile = 'black'
 line_length = 80
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+	"tests",
+	"integration",
+]
