@@ -1,7 +1,7 @@
-from typing import List
-import subprocess
 import re
+import subprocess
 from time import struct_time, time
+from typing import List
 
 LANGUAGES = {
     "py": "python",
@@ -62,28 +62,29 @@ class Language:
         self.vim_processes.append(vim_process)
 
 
-def get_vim_processes(processes: List[str]) -> List[str]:
-    vim_processes = []
-    for process in processes:
-        if process.find("vim") != -1:
-            vim_processes.append(process)
-    return vim_processes
+class CodingTracker:
+    def __init__(self, refresh_time: int = 5):
+        self.refresh_time: int = refresh_time
+        self.vim_processes: List[VimProcess] = []
+
+    def update(self) -> None:
+        processes: subprocess.CompletedProcess = ""
+
+        processes = subprocess.run(
+            ["ps", "-aux"], capture_output=True, text=True
+        )
+        for process in self.get_vim_processes(processes):
+            self.vim_processes.append(VimProcess(process))
+
+    def get_vim_processes(self, processes: str) -> List[str]:
+        processes = retval.stdout.split("\n")
+        vim_processes = []
+        for process in processes:
+            if process.find("vim") != -1:
+                vim_processes.append(process)
+        return vim_processes
 
 
 def main() -> None:
-    vim_processes_list: List[VimProcess] = []
-    retval: subprocess.CompletedProcess = subprocess.run(
-        ["ps", "-aux"], capture_output=True, text=True
-    )
-    processes: List[str] = retval.stdout.split("\n")
-    vim_processes: List[str] = get_vim_processes(processes)
-
-    for process in vim_processes:
-        vim_processes_list.append(VimProcess(process))
-
-    for vim_process in vim_processes_list:
-        print(
-            vim_process.pid,
-            vim_process.language,
-            f"{vim_process.start_time.tm_hour}:{vim_process.start_time.tm_min}",
-        )
+    app = CodingTracker()
+    app.update()
