@@ -78,6 +78,7 @@ def one_language_object() -> Language:
     language = Language(editor)
     return language
 
+<<<<<<< HEAD
 
 @pytest.fixture
 def multiple_language_object(
@@ -88,6 +89,31 @@ def multiple_language_object(
         language.add_process_to_list(process)
     return language
 
+=======
+def test_add_language(list_python_editor_process: list[EditorProcess], language_one: Language):
+    language_one.update(list_python_editor_process)
+    assert len(language_one.processes) == 8
+
+@pytest.fixture
+def language_multiple():
+    processes = [
+        "eguefif     5534  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 nano client.py",
+        "guefif     1  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 vim test.py",
+        "guefif     16  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 vim test.py",
+        "eguefif     5535  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 nano client.py",
+        "guefif     5541  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 nano test.py",
+        "guefif     0  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 nano test.py",
+        "guefif     11  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 nano test.py",
+        ]
+    editor = [EditorProcess(process) for process in processes]
+    language = Language(editor[0])
+    language.update(process[1:])
+    return language
+
+def test_remove_one_process(language_multiple, python_editor_process):
+    language_multiple.remove_process(python_editor_process)
+    assert len(language_multiple.processes) == 6
+>>>>>>> refactor_language
 
 def test_language_constructor(python_editor_process: EditorProcess) -> None:
     language = Language(python_editor_process)
