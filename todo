@@ -1,8 +1,11 @@
 Todo:
-there is one more file with process tests that is a double. Carefull, I might have wrote
-a test here that should be in the other legit file.
+ProcessTracker:
+	write update_process_list() -> This will remove process from language objects.
 
-- make test for emacs -> get emacs
+Tests:
+	-refactor process tests
+	- make test for emacs -> get emacs
+	- test tracking language when a process is stopped. Be sure it stops measuring time
 
 -design
 	at the beginning, load data from server or localy
@@ -12,3 +15,5 @@ a test here that should be in the other legit file.
 - data structure
 	should I save each day as different entry? use SQLLite
 
+- Installation:
+	It has to create a file data.dat

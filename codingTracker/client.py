@@ -1,7 +1,9 @@
 import re
 import subprocess
-from time import sleep, time
+from time import sleep, time, strftime, strptime, localtime
 from typing import List
+import json
+
 
 LANGUAGES = {
     "": "None",
@@ -12,6 +14,7 @@ LANGUAGES = {
     "h": "c",
     "js": "javascript",
 }
+
 
 EDITORS = ("vim", "emacs", "nano")
 
@@ -89,7 +92,6 @@ class ProcessTracker:
         editor_list = self.get_editor_list(processes.stdout)
         return editor_list
 
-
     def get_editor_list(self, processes: str) -> List[EditorProcess]:
         editor_list: List[EditorProcess] = []
         for process in self.get_editor_processes(processes):
@@ -140,8 +142,11 @@ class Language:
             self.time_spent += time() - self.starting_time
             self.starting_time = 0
 
-    def get_time_spent(self) -> int:
-        return int(time() - self.starting_time)
+    def get_time_spent(self) -> float:
+        if len(self.processes) > 0:
+            return int(time() - self.starting_time)
+        else:
+            return self.time_spent
 
     def __str__(self):
         retval = (
@@ -156,13 +161,17 @@ class LanguageTracker:
         self.language_list: List[Language] = []
 
     def update(self, editor_list: List[EditorProcess]) -> None:
+        self.update_languages(editor_list)
+        self.update_process_list(editor_list)
+
+    def update_languages(self, editor_list: List[EditorProcess]) -> None:
         for editor in editor_list:
             if self.is_new_language(editor):
                 self.add_new_language_to_list(editor)
             else:
                 for language in self.language_list:
                     if language.name == editor.language:
-                        language.add_process_to_list(editor)
+                        language.update_list(editor)
 
     def is_new_language(self, editor: EditorProcess) -> bool:
         for language in self.language_list:
@@ -186,18 +195,49 @@ class LanguageTracker:
 
 
 class DataProcessing:
-    def __init__(self, remote: bool = False, local: bool = True):
+    def __init__(self, remote: bool = False, local: bool = True, file: str = "./data.dat"):
         self.remote: bool = remote
         self.local: bool = local
+        self.file = file
+        self.day_format = "%j %y"
+        self.data: dict[str, int] = self.get_data_from_file()
 
-    def save(self, data):
-        for d in data:
-            print(d.language)
+    def get_data_from_file(self) -> dict[str, int]:
+        content: dict[str, dict[str, int]] = {}
+        day: str = ""
+
+        with open(self.file, "r") as f:
+            content = json.load(f)
+        day = strftime(self.day_format, localtime())
+        for key, value in content.items():
+            if (key == day):
+                return value
+        return {}
+
+    def update_data(self, new_data:dict[str, int]) -> None:
+        for key, value in new_data.items():
+            self.data[key] = value
+        self.save()
+
+    def save(self) -> None:
+        day = strftime(self.day_format, localtime())
+        with open(self.file, 'r') as f:
+            content = json.load(f)
+        if day in content.keys():
+            for key, value in self.data.items():
+                if key in content[day].keys():
+                    content[day][key] += self.data[key]
+                else:
+                    content[day][key] = self.data[key]
+        else:
+            content[day] = self.data
+        with open(self.file, 'w') as f:
+            json.dump(content, f)
 
 
 class App:
     def __init__(self, sleeping_time: int = 5):
-        self.sleeping_time = 5 * 60
+        self.sleeping_time = 5
         self.language_tracker: LanguageTracker = LanguageTracker()
         self.process_tracker: ProcessTracker = ProcessTracker()
         self.editor_list: List[EditorProcess] = []
@@ -208,7 +248,7 @@ class App:
             self.editor_list = self.process_tracker.get_processes()
             self.language_tracker.update(self.editor_list)
             data = self.language_tracker.get_data()
-            self.data_processing.save(data)
+            self.data_processing.update_data(data)
             sleep(self.sleeping_time)
 
 
