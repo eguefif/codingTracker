@@ -78,18 +78,6 @@ def one_language_object() -> Language:
     language = Language(editor)
     return language
 
-<<<<<<< HEAD
-
-@pytest.fixture
-def multiple_language_object(
-    one_language_editor_list: List[EditorProcess],
-) -> Language:
-    language = Language(one_language_editor_list[0])
-    for process in one_language_editor_list[1:]:
-        language.add_process_to_list(process)
-    return language
-
-=======
 def test_add_language(list_python_editor_process: list[EditorProcess], language_one: Language):
     language_one.update(list_python_editor_process)
     assert len(language_one.processes) == 8
@@ -113,7 +101,6 @@ def language_multiple():
 def test_remove_one_process(language_multiple, python_editor_process):
     language_multiple.remove_process(python_editor_process)
     assert len(language_multiple.processes) == 6
->>>>>>> refactor_language
 
 def test_language_constructor(python_editor_process: EditorProcess) -> None:
     language = Language(python_editor_process)

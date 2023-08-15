@@ -168,12 +168,7 @@ class LanguageTracker:
                 self.add_new_language_to_list(editor)
             else:
                 for language in self.language_list:
-<<<<<<< HEAD
-                    if language.name == editor.language:
-                        language.update_list(editor)
-=======
                     language.update(editor_list)
->>>>>>> refactor_language
 
     def is_new_language(self, editor: EditorProcess) -> bool:
         for language in self.language_list:
