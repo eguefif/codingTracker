@@ -118,15 +118,13 @@ class Language:
         self.processes: List[EditorProcess] = []
         self.add_process_to_list(process)
 
-    def add_process_to_list(self, editor: EditorProcess) -> None:
-        if not self.is_process_here(editor):
-            self.append_process(editor)
-
-    def is_process_here(self, editor: EditorProcess) -> bool:
+    def update(self, editor_list: List[EditorProcess]) -> None:
+        for process in editor_list:
+            if not process in self.processes:
+                self.append_process(editor)
         for process in self.processes:
-            if process == editor:
-                return True
-        return False
+            if process not in editor_list:
+                self.processes.pop(process)
 
     def append_process(self, process: EditorProcess) -> None:
         if not len(self.processes):
@@ -161,8 +159,7 @@ class LanguageTracker:
                 self.add_new_language_to_list(editor)
             else:
                 for language in self.language_list:
-                    if language.name == editor.language:
-                        language.add_process_to_list(editor)
+                    language.update(editor_list)
 
     def is_new_language(self, editor: EditorProcess) -> bool:
         for language in self.language_list:

@@ -85,10 +85,8 @@ def language_one():
     language = Language(editor)
     return language
 
-def test_add_language(list_python_editor_process, language_one):
-    for process in list_python_editor_process:
-        language_one.add_process_to_list(process)
-
+def test_add_language(list_python_editor_process: list[EditorProcess], language_one: Language):
+    language_one.update(list_python_editor_process)
     assert len(language_one.processes) == 8
 
 @pytest.fixture
@@ -104,11 +102,10 @@ def language_multiple():
         ]
     editor = [EditorProcess(process) for process in processes]
     language = Language(editor[0])
-    for process in editor[1:]:
-        language.add_process_to_list(process)
+    language.update(process[1:])
     return language
 
-def test_remove_one_processes(language_multiple, python_editor_process):
+def test_remove_one_process(language_multiple, python_editor_process):
     language_multiple.remove_process(python_editor_process)
     assert len(language_multiple.processes) == 6
 
