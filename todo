@@ -1,3 +1,14 @@
 Todo:
-- think the design
-- work on class language
+there is one more file with process tests that is a double. Carefull, I might have wrote
+a test here that should be in the other legit file.
+
+- make test for emacs -> get emacs
+
+-design
+	at the beginning, load data from server or localy
+	build the tracker language from these data
+	each iteration, it update file or server with the new data
+
+- data structure
+	should I save each day as different entry? use SQLLite
+

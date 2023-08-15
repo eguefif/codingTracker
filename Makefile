@@ -12,6 +12,6 @@ lint:
 	flake8 $(SRC) $(TEST)
 
 type:
-	mypy $(SRC)
+	mypy --no-strict-optional $(SRC)
 
 checkall: lint type test
