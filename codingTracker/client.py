@@ -118,15 +118,17 @@ class Language:
         self.starting_time: float = process.start_time
         self.time_spent: float = 0
         self.processes: List[EditorProcess] = []
-        self.add_process_to_list(process)
+        self.append_process(process)
 
     def update(self, editor_list: List[EditorProcess]) -> None:
+        print(editor_list)
+        print(self.processes)
         for process in editor_list:
             if not process in self.processes:
-                self.append_process(editor)
+                self.append_process(process)
         for process in self.processes:
             if process not in editor_list:
-                self.processes.pop(process)
+                self.processes.remove(process)
 
     def append_process(self, process: EditorProcess) -> None:
         if not len(self.processes):
@@ -139,6 +141,12 @@ class Language:
         if not len(self.processes):
             self.time_spent += time() - self.starting_time
             self.starting_time = 0
+
+    def is_process_here(self, process: EditorProcess) -> bool:
+        for p in self.processes:
+            if p == process:
+                return True
+        return False
 
     def get_time_spent(self) -> float:
         if len(self.processes) > 0:
@@ -159,10 +167,6 @@ class LanguageTracker:
         self.language_list: List[Language] = []
 
     def update(self, editor_list: List[EditorProcess]) -> None:
-        self.update_languages(editor_list)
-        self.update_process_list(editor_list)
-
-    def update_languages(self, editor_list: List[EditorProcess]) -> None:
         for editor in editor_list:
             if self.is_new_language(editor):
                 self.add_new_language_to_list(editor)
@@ -218,6 +222,7 @@ class DataProcessing:
 
     def save(self) -> None:
         day = strftime(self.day_format, localtime())
+        print(self.data)
         with open(self.file, 'r') as f:
             content = json.load(f)
         if day in content.keys():

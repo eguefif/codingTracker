@@ -78,12 +78,13 @@ def one_language_object() -> Language:
     language = Language(editor)
     return language
 
-def test_add_language(list_python_editor_process: list[EditorProcess], language_one: Language):
-    language_one.update(list_python_editor_process)
-    assert len(language_one.processes) == 8
+def test_add_language(one_language_editor_list: list[EditorProcess], one_language_object: Language):
+    one_language_object.update(one_language_editor_list)
+    assert len(one_language_object.processes) == 7
 
 @pytest.fixture
 def language_multiple():
+    editor: list[EditorProcess]
     processes = [
         "eguefif     5534  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 nano client.py",
         "guefif     1  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 vim test.py",
@@ -95,7 +96,7 @@ def language_multiple():
         ]
     editor = [EditorProcess(process) for process in processes]
     language = Language(editor[0])
-    language.update(process[1:])
+    language.update(editor[1:])
     return language
 
 def test_remove_one_process(language_multiple, python_editor_process):
@@ -109,43 +110,34 @@ def test_language_constructor(python_editor_process: EditorProcess) -> None:
     assert language.name == "python"
 
 
-def test_add_language(
-    one_language_editor_list: List[EditorProcess], one_language_object: Language
-) -> None:
-    for process in one_language_editor_list:
-        one_language_object.add_process_to_list(process)
-
-    assert len(one_language_object.processes) == 7
-
-
 def test_remove_one_process(
-    multiple_language_object: Language, python_editor_process: EditorProcess
+    language_multiple: Language, python_editor_process: EditorProcess
 ) -> None:
-    multiple_language_object.remove_process(python_editor_process)
-    assert len(multiple_language_object.processes) == 6
+    language_multiple.remove_process(python_editor_process)
+    assert len(language_multiple.processes) == 6
 
 
-def test_remove_mutliple(
-    multiple_language_object: Language,
+def test_remove_multiple(
+    language_multiple: Language,
     one_language_editor_list: List[EditorProcess],
 ) -> None:
     for process in one_language_editor_list[:2]:
-        multiple_language_object.remove_process(process)
-    assert len(multiple_language_object.processes) == 5
+        language_multiple.remove_process(process)
+    assert len(language_multiple.processes) == 5
 
 
-def test_is_process_here_true(multiple_language_object: Language) -> None:
+def test_is_process_here_true(language_multiple: Language) -> None:
     process = EditorProcess(
         "guefif     11  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 nano test.py"
     )
-    assert multiple_language_object.is_process_here(process) is True
+    assert language_multiple.is_process_here(process) is True
 
 
-def test_is_process_here_false(multiple_language_object: Language) -> None:
+def test_is_process_here_false(language_multiple: Language) -> None:
     process = EditorProcess(
         "eguefif     333  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 emacs client.py"
     )
-    assert multiple_language_object.is_process_here(process) is False
+    assert language_multiple.is_process_here(process) is False
 
 
 def test_remove_last_process() -> None:
