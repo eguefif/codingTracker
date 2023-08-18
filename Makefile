@@ -1,5 +1,5 @@
-TESTS = ./tests/test_language_tracker.py ./tests/test_processtracker_editorprocess.py \
-		./tests/test_dataProcessing.py
+TESTS = ./tests/test_language.py ./tests/test_process.py \
+		./tests/test_filedata.py
 SRC = ./codingTracker/client.py
 
 .PHONY: test lint type checkall

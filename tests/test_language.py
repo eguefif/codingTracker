@@ -3,13 +3,14 @@ from typing import List
 
 import pytest
 
-from codingTracker.client import EditorProcess, Language, LanguageTracker
+from codingTracker.language import Language, LanguageTracker
+from codingTracker.process import EditorProcess
 
 
 # Testing Languagetracker
 @pytest.fixture
-def list_editor_processes():
-    ps_entries = [
+def list_editor_processes() -> list[EditorProcess]:
+    ps_entries: list[str] = [
         "eguefif     5534  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 nano client.py",
         "guefif     1  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 vim test.py",
         "guefif     16  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 vim test.c",
@@ -29,9 +30,33 @@ def tracker():
     return LanguageTracker()
 
 
-def test_update(list_editor_processes, tracker) -> None:
+def test_update(
+    list_editor_processes: list[EditorProcess], tracker: LanguageTracker
+) -> None:
     tracker.update(list_editor_processes)
     assert len(tracker.language_list) == 4
+    for lg in tracker.language_list:
+        if lg.name == "python":
+            assert len(lg.processes) == 4
+        elif lg.name == "c":
+            assert len(lg.processes) == 2
+        elif lg.name == "cpp":
+            assert len(lg.processes) == 3
+        elif lg.name == "javascript":
+            assert len(lg.processes) == 1
+    list_editor_processes.pop()
+    list_editor_processes.pop()
+    tracker.update(list_editor_processes)
+    assert len(tracker.language_list) == 4
+    for lg in tracker.language_list:
+        if lg.name == "python":
+            assert len(lg.processes) == 3
+        elif lg.name == "c":
+            assert len(lg.processes) == 1
+        elif lg.name == "cpp":
+            assert len(lg.processes) == 3
+        elif lg.name == "javascript":
+            assert len(lg.processes) == 1
 
 
 def test_get_data(list_editor_processes, tracker) -> None:
@@ -61,11 +86,14 @@ def one_language_editor_list() -> List[EditorProcess]:
         "eguefif     5534  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 nano client.py",
         "guefif     1  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 vim test.py",
         "guefif     16  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 vim test.py",
+        "eguefif     5534  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 emacs client.py",
+        "eguefif     5534  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 emacs client.cpp",
         "eguefif     5535  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 nano client.py",
         "guefif     5541  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 nano test.py",
         "guefif     554  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 nano test.py",
         "guefif     11  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 nano test.py",
-        "eguefif     5534  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 emacs client.py",
+        "eguefif     5534  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 emacs client.c",
+        "eguefif     5534  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 emacs client.js",
     ]
     editor_list = [EditorProcess(entry) for entry in ps_entries]
     return editor_list
@@ -78,9 +106,13 @@ def one_language_object() -> Language:
     language = Language(editor)
     return language
 
-def test_add_language(one_language_editor_list: list[EditorProcess], one_language_object: Language):
+
+def test_add_process(
+    one_language_editor_list: list[EditorProcess], one_language_object: Language
+):
     one_language_object.update(one_language_editor_list)
     assert len(one_language_object.processes) == 7
+
 
 @pytest.fixture
 def language_multiple():
@@ -93,15 +125,12 @@ def language_multiple():
         "guefif     5541  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 nano test.py",
         "guefif     0  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 nano test.py",
         "guefif     11  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 nano test.py",
-        ]
+    ]
     editor = [EditorProcess(process) for process in processes]
     language = Language(editor[0])
     language.update(editor[1:])
     return language
 
-def test_remove_one_process(language_multiple, python_editor_process):
-    language_multiple.remove_process(python_editor_process)
-    assert len(language_multiple.processes) == 6
 
 def test_language_constructor(python_editor_process: EditorProcess) -> None:
     language = Language(python_editor_process)
@@ -110,10 +139,17 @@ def test_language_constructor(python_editor_process: EditorProcess) -> None:
     assert language.name == "python"
 
 
-def test_remove_one_process(
-    language_multiple: Language, python_editor_process: EditorProcess
-) -> None:
-    language_multiple.remove_process(python_editor_process)
+def test_remove_one_process(language_multiple: Language) -> None:
+    process = "eguefif     5534  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 emacs client.py"
+    editor = EditorProcess(process)
+    language_multiple.remove_process(editor)
+    assert len(language_multiple.processes) == 6
+
+
+def test_remove_one_process_not_in_list(language_multiple: Language) -> None:
+    process = "eguefif     4  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 emacs client.py"
+    editor = EditorProcess(process)
+    language_multiple.remove_process(editor)
     assert len(language_multiple.processes) == 6
 
 
@@ -126,20 +162,6 @@ def test_remove_multiple(
     assert len(language_multiple.processes) == 5
 
 
-def test_is_process_here_true(language_multiple: Language) -> None:
-    process = EditorProcess(
-        "guefif     11  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 nano test.py"
-    )
-    assert language_multiple.is_process_here(process) is True
-
-
-def test_is_process_here_false(language_multiple: Language) -> None:
-    process = EditorProcess(
-        "eguefif     333  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 emacs client.py"
-    )
-    assert language_multiple.is_process_here(process) is False
-
-
 def test_remove_last_process() -> None:
     process = "eguefif     554  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 emacs client.py"
     editor = EditorProcess(process)
@@ -148,4 +170,4 @@ def test_remove_last_process() -> None:
     language.remove_process(editor)
     sleep(1)
     assert len(language.processes) == 0
-    assert 2 > language.time_spent > 1
+    assert 1.1 > language.time_spent > 1

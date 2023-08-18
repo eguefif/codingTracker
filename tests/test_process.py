@@ -1,19 +1,17 @@
-from typing import List
-
 import pytest
 
-from codingTracker.client import EditorProcess, ProcessTracker
+from codingTracker.process import EditorProcess, ProcessTracker
 
 
 # Test ProcessTracker
 @pytest.fixture
-def editorprocesses_from_file() -> tuple[str, List[str]]:
+def editorprocesses_from_file() -> tuple[str, list[str]]:
     ps_entries: str = ""
-    expected: List[str] = []
+    expected: list[str] = []
     content: str = ""
     with open("./tests/ps_entries.dat", "r") as f:
         content = f.read()
-    content_list: List[str] = content.split("\n")
+    content_list: list[str] = content.split("\n")
     idx: int = content_list.index("")
     for line in content_list[:idx]:
         ps_entries += line + "\n"
@@ -22,35 +20,42 @@ def editorprocesses_from_file() -> tuple[str, List[str]]:
 
 
 @pytest.fixture
-def ps_list_str() -> List[str]:
+def ps_list_str() -> list[str]:
     ps_entries = [
-        "eguefif     5534  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 vim client.py\n"
-        "guefif     5541  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 vim test.py\n"
-        "guefif     0  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 vim test.py\n"
-        "guefif     0  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 vim test.xx\n"
+        "eguefif     33464  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 vim client.py\n"
+        "guefif     33  0.2  0.0  33 33516 pts/0    S+   06:46   0:00 vim test.c\n"
+        "guefif     36  0.2  0.0  36 11648 pts/0    S+   06:46   0:00 nano test.cpp\n"
+        "guefif     0  0.2  0.0  33111 11648 pts/0    S+   06:46   0:00 emacs test.xx\n"
+        "guefif     22222  0.2  0.0  22222 11648 pts/0    S+   06:46   0:00 zoro test.js\n"
     ]
     return ps_entries
 
 
-def test_get_editor_list(ps_list_str: List[str]) -> None:
+def test_get_editor_list(ps_list_str: list[str]) -> None:
     tracker: ProcessTracker = ProcessTracker()
     ps_str = "".join(ps_list_str)
-    editor_list: List[EditorProcess] = tracker.get_editor_list(ps_str)
+    editor_list: list[EditorProcess] = tracker.get_editor_list(ps_str)
     assert len(editor_list) == 3
+    assert editor_list[0].language == "python"
+    assert editor_list[0].pid == 33464
+    assert editor_list[1].language == "c"
+    assert editor_list[1].pid == 33
+    assert editor_list[2].language == "c++"
+    assert editor_list[2].pid == 36
 
 
 def test_get_editor_processes(
-    editorprocesses_from_file: tuple[str, List[str]]
+    editorprocesses_from_file: tuple[str, list[str]]
 ) -> None:
     ps_entry, expected = editorprocesses_from_file
     tracker: ProcessTracker = ProcessTracker()
-    list_editors: List[str] = tracker.get_editor_processes(ps_entry)
+    list_editors: list[str] = tracker.get_editor_processes(ps_entry)
     for process in list_editors:
         assert process in expected
 
 
 # Testing EditorProcess
-ps_entries_pid: List[tuple[str, int]] = [
+ps_entries_pid: list[tuple[str, int]] = [
     (
         "eguefif     5534  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 vim client.py",
         5534,
@@ -108,7 +113,7 @@ def test_get_pid(ps_entry: str, expected: int) -> None:
     assert process.pid == expected
 
 
-ps_entries: List[tuple[str, str]] = [
+ps_entries: list[tuple[str, str]] = [
     (
         "eguefif     5534  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 vim client.py",
         "python",
@@ -210,7 +215,7 @@ def test_get_language(ps_entry: str, expected: str) -> None:
     assert process.language == expected
 
 
-ps_entries_eq: List[tuple[str, str, bool]] = [
+ps_entries_eq: list[tuple[str, str, bool]] = [
     (
         "eguefif     5534  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 emacs client.py",
         "guefif     5541  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 emacs test.py",
@@ -218,6 +223,11 @@ ps_entries_eq: List[tuple[str, str, bool]] = [
     ),
     (
         "guefif     0  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 emacs test.py",
+        "guefif     0  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 emacs test.py",
+        True,
+    ),
+    (
+        "eegu     0  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 emacs test.py",
         "guefif     0  0.2  0.0  33516 11648 pts/0    S+   06:46   0:00 emacs test.py",
         True,
     ),

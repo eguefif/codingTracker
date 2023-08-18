@@ -1,6 +1,8 @@
 Todo:
-ProcessTracker:
-	write update_process_list() -> This will remove process from language objects.
+Code the part that connect to the server in the client
+-handle signal sigint and sigterm
+- the filedata should be able to return all the data from a file, not just a day.
+It has to be able to sync with the server in order to update more than one day.
 
 Tests:
 	-refactor process tests
