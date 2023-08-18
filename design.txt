@@ -1,0 +1,10 @@
+Data handling:
+The client has a class DataHandler.
+This class assure the data won't be lost. It first try to log in the server and update with the last data.
+If it can't log, it saves the data locally.
+
+Thus, wee need two remote commands:
+-sync: will update all the data it has in a file
+-update: will update with a basic languages dictionnary.
+
+The server will be the one sorting out what to update with its local database.
