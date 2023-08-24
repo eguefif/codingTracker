@@ -2,7 +2,6 @@ import re
 import subprocess
 from time import time
 
-
 LANGUAGES = {
     "": "None",
     "py": "python",
@@ -13,6 +12,7 @@ LANGUAGES = {
     "js": "javascript",
 }
 EDITORS = ("vim", "emacs", "nano")
+
 
 class EditorProcess:
     def __init__(self, ps_entry: str):
@@ -95,4 +95,3 @@ class ProcessTracker:
                 if process.find(editor) != -1:
                     editor_processes.append(process)
         return editor_processes
-

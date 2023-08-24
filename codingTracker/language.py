@@ -67,13 +67,14 @@ class LanguageTracker:
         language = Language(editor)
         self.language_list.append(language)
 
-    def get_data(self) -> dict[str, int]:
-        data: dict[str, int] = {}
+    def get_data(self) -> Data:
+        day: str = strftime("%j %y")
+        data_dict: dict[str, dict[str, int]] = {}
         for lg in self.language_list:
-            data[lg.name] = int(lg.get_time_spent())
+            data_dict[day][lg.name] = int(lg.get_time_spent())
+        data: File = Data(data_dict)
         return data
 
     def __str__(self):
         retval = "\n".join([str(lg) for lg in self.language_list])
         return retval
-

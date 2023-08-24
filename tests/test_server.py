@@ -8,7 +8,7 @@ def data():
     return data
 
 @pytest.mark.asyncio
-async def test_server(data):
+async def t(data):
     reader, writer = await asyncio.open_connection("127.0.0.1", 10000)
     message = json.dumps(data)
     size = len(message)

@@ -8,3 +8,18 @@ Thus, wee need two remote commands:
 -update: will update with a basic languages dictionnary.
 
 The server will be the one sorting out what to update with its local database.
+
+how it works
+Opening:
+Read local file and load data.
+Update data depending on how long it sleeps.
+	-> Try to update the server first
+	-> update local file if offline.
+	-> If updated works, reset local file
+
+How to check if it updated the server:
+- send a random for the update.
+- When the server has saved the new file, it send back the number.
+
+
+BE CAREFULL -> How to handle the case when the client restart but it's not the first time of the day
