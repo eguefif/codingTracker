@@ -1,11 +1,11 @@
 import pytest
 import json
 import asyncio
-from xprocess import ProcessStarter
 
 
 from codingTracker.connexion import Connexion
 from codingTracker.connexion import Data
+from codingTracker.server_for_test import serverForTest
 
 
 @pytest.fixture
@@ -17,7 +17,6 @@ def data() -> Data:
     data_dict: dict[str, dict[str, list[float]]] = {"123 2023": {"python": [32.1, 11.3], "c": [22, 23.1]}, "100 2022": {"python": [12, 32.2]}}
     data_obj: Data = Data(data_dict)
     return data_obj, data_dict
-
 
 def test_get_encoded_message(connexion, data) -> None:
     data_obj, data_test = data

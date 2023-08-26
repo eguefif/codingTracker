@@ -33,12 +33,13 @@ class App:
         self.configure_signal()
         self.data_handler.init_connection()
 
-    async def run(self):
+    async def run(self) -> None:
         while self.running:
             editor_list: list[
                 EditorProcess
             ] = self.process_tracker.get_processes()
-            new_data: Data = self.data.update_data(editor_list)
+            new_data: Data = Data()
+            new_data.update(editor_list)
             await self.save_data(new_data)
             sleep(self.sleeping_time)
 

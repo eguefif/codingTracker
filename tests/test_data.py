@@ -17,7 +17,7 @@ def empty_data_object() -> Data:
 @pytest.fixture
 def data_day_object() -> Data:
     day: str = strftime(DAY_FORMAT)
-    data_dict: dict[str, dict[str, int]] = {
+    data_dict: dict[str, dict[str, list[float]]] = {
         day: {
             "python": [21.12, 41.23],
             "javascript": [21.12, 41.23],
@@ -40,8 +40,8 @@ def data_day_object() -> Data:
 
 
 @pytest.fixture
-def processes() -> list[str]:
-    ps_entries = [
+def processes() -> list[EditorProcess]:
+    ps_entries: list[str] = [
         "eguefif     33464  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 vim client.py",
         "guefif     33  0.2  0.0  33 33516 pts/0    S+   06:46   0:00 vim test.c",
         "guefif     22222  0.2  0.0  22222 11648 pts/0    S+   06:46   0:00 emacs test.js",
@@ -50,7 +50,9 @@ def processes() -> list[str]:
     return retval
 
 
-def test_update_data_with_empty_data_object(empty_data_object, processes):
+def test_update_data_with_empty_data_object(
+    empty_data_object: Data, processes: list[EditorProcess]
+) -> None:
     day: str = strftime(DAY_FORMAT)
     start_time: float = time()
     empty_data_object.update(processes)
@@ -78,7 +80,9 @@ def test_update_data_with_empty_data_object(empty_data_object, processes):
     )
 
 
-def test_update_data_with_data_of_the_day_already(data_day_object, processes):
+def test_update_data_with_data_of_the_day_already(
+    data_day_object, processes
+) -> None:
     day: str = strftime(DAY_FORMAT)
     start_time: float = 21.12
     data_day_object.update(processes)

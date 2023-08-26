@@ -2,7 +2,7 @@ import asyncio
 import json
 import signal
 
-from codingTracker.data import FileData
+from codingTracker.data import Data, FileData
 
 
 class GraceFullExit(SystemExit):
@@ -34,7 +34,7 @@ class App:
         self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter
     ):
         while True:
-            data: dict[str, dict[str, int]] = {}
+            data: dict[str, dict[str, list[float]]] = {}
             size: int = await self.get_message_size(reader)
             if size == -1:
                 break
@@ -62,7 +62,8 @@ class App:
         message = encoded_message.decode("utf-8")
         return json.loads(message)
 
-    def save_data(self, data: dict[str, dict[str, int]]):
+    def save_data(self, dict_data: dict[str, dict[str, list[float]]]):
+        data: Data = Data(dict_data)
         self.file.save(data)
 
     async def terminate_server(self) -> None:

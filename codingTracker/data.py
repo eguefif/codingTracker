@@ -62,9 +62,10 @@ class FileData:
             return data
         return Data()
 
-    def save(self, data: dict[str, dict[str, int]]) -> None:
+    def save(self, data: Data) -> None:
+        data_dict: dict[str, dict[str, list[float]]] = data.data
         with open(self.path, "w") as f:
-            json.dump(data, f)
+            json.dump(data_dict, f)
 
     def is_data(self) -> bool:
         with open(self.path, "r") as f:

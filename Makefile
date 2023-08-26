@@ -1,6 +1,5 @@
 TESTS = ./tests/test_process.py \
-		./tests/test_data.py \
-		./tests/test_server.py
+		./tests/test_data.py
 SRC = ./codingTracker/client.py ./codingTracker/datahandler.py \
 	  ./codingTracker/connexion.py ./codingTracker/process.py \
 	  ./codingTracker/server.py ./codingTracker/data.py
@@ -9,7 +8,10 @@ SRC = ./codingTracker/client.py ./codingTracker/datahandler.py \
 .PHONY: test lint type checkall
 
 test:
+	./tests/server_for_test.py &
 	pytest
+	pgrep server_for | xargs kill
+	
 
 lint:
 	isort $(SRC)

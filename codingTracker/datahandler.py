@@ -1,5 +1,3 @@
-import json
-
 from codingTracker.connexion import Connexion
 from codingTracker.data import Data, FileData
 
@@ -18,13 +16,13 @@ class DataHandler:
         self.encoding = encoding
 
     async def update(self, data: Data):
-        await self.connexion.update(encoded_data)
+        await self.connexion.update(data)
         check: bool = await self.connexion.is_data_synced()
         if not check or self.connexion.state is False:
             self.file_handler.save(data)
 
-    def build_data(self, data: Data) -> Data:
-        file_data: Data = self.file_handler.get_whole_data(data)
+    def build_data(self) -> Data:
+        file_data: Data = self.file_handler.get_data_from_file()
         return file_data
 
     async def terminate(self):
