@@ -1,11 +1,14 @@
-import json
-import pytest
 import asyncio
+import json
+
+import pytest
+
 
 @pytest.fixture
 def data():
     data: dict[str, dict[str, int]] = {"123 2023": {"python": 23, "c": 10}}
     return data
+
 
 @pytest.mark.asyncio
 async def t(data):

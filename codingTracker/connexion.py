@@ -1,4 +1,5 @@
 import asyncio
+import json
 
 from codingTracker.data import Data
 
@@ -12,32 +13,33 @@ class Connexion:
         self.state: bool = False
 
     async def init_connection(self):
-        self.reader, self.writer = await asyncio.open_connection(
-            self.host, self.port
-        )
-        if self.writer.get_extra_info("peername") is None:
+        try:
+            self.reader, self.writer = await asyncio.open_connection(
+                self.host, self.port
+            )
+        except Exception as e:
+            print(f"Exception while connecting: {e}")
             self.state = False
-        else:
-            self.state = True
+            return
+        self.state = True
 
     async def update(self, data: Data) -> None:
-        self.data = self.transform_data_for_remote(data)
-        await self.send_protoheader()
-        await self.send_data()
+        message = self.get_encoded_message(data)
+        await self.send_protoheader(message)
+        await self.send(message)
 
-    def transform_data_for_remote(self, data: Data) -> bytes:
-        return data.get_data_for_sending()
+    def get_encoded_message(self, data: Data) -> bytes:
+        dump: str = json.dumps(data.data)
+        encoded_message: bytes = dump.encode(self.encoding)
+        return encoded_message
 
-    async def send_protoheader(self) -> None:
-        protoheader: bytes = self.build_protoheader()
+    async def send_protoheader(self, message: bytes) -> None:
+        protoheader: bytes = self.build_protoheader(message)
         await self.send(protoheader)
 
-    def build_protoheader(self) -> bytes:
-        protoheader: str = "{0:5}".format(len(self.data))
+    def build_protoheader(self, message: bytes) -> bytes:
+        protoheader: str = "{0:5}".format(len(message))
         return protoheader.encode(self.encoding)
-
-    async def send_data(self) -> None:
-        await self.send(self.data)
 
     async def send(self, message: bytes) -> None:
         print("sending : ", message)
@@ -55,4 +57,5 @@ class Connexion:
         if self.state:
             self.writer.write_eof()
             self.writer.close()
-            self.writer.wait_closed()
+            await self.writer.wait_closed()
+            self.state = False

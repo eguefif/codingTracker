@@ -1,24 +1,9 @@
 Todo:
-test new data class:
-	-test when it is a new day
-	- test when the day is already there with several day already.
-Code the part that connect to the server in the client
--handle signal sigint and sigterm
-- the filedata should be able to return all the data from a file, not just a day.
-It has to be able to sync with the server in order to update more than one day.
+	- test class connexion
+	- test class datahandler
 
-Tests:
-	-refactor process tests
-	- make test for emacs -> get emacs
-	- test tracking language when a process is stopped. Be sure it stops measuring time
+How to test connection
+	-Write a little server that print on stdou everything that is arriving.
+	- use asyncio.create_subprocess_shell() to run this server
+	- We'll assert the stdout with what we put in connexion function test
 
--design
-	at the beginning, load data from server or localy
-	build the tracker language from these data
-	each iteration, it update file or server with the new data
-
-- data structure
-	should I save each day as different entry? use SQLLite
-
-- Installation:
-	It has to create a file data.dat

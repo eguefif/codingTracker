@@ -1,10 +1,9 @@
 import asyncio
 import signal
-from time import sleep, strftime
+from time import sleep
 
 from codingTracker.data import Data
 from codingTracker.datahandler import DataHandler
-from codingTracker.language import LanguageTracker
 from codingTracker.process import EditorProcess, ProcessTracker
 
 
@@ -18,17 +17,32 @@ class App:
         encoding="utf-8",
     ):
         self.sleeping_time = sleeping_time
-        self.language_tracker: LanguageTracker = LanguageTracker()
-        self.data_handler: DataHandler = DataHandler(
-            host_ip=host, host_port=port
-        )
-        saved_data = self.data_handler.get_file_data()
-        self.data: Data = Data()
-        self.process_tracker: ProcessTracker = ProcessTracker()
         self.running: bool = True
         self.loop: asyncio.AbstractEventLoop = None
 
+        self.data_handler: DataHandler = DataHandler(
+            file_path="./data.dat",
+            host_ip=host,
+            host_port=port,
+            encoding="utf-8",
+        )
+        self.data: Data = Data()
+        self.process_tracker: ProcessTracker = ProcessTracker()
+
+    def on_init(self):
+        self.configure_signal()
+        self.data_handler.init_connection()
+
     async def run(self):
+        while self.running:
+            editor_list: list[
+                EditorProcess
+            ] = self.process_tracker.get_processes()
+            new_data: Data = self.data.update_data(editor_list)
+            await self.save_data(new_data)
+            sleep(self.sleeping_time)
+
+    def configure_signals(self):
         self.loop = asyncio.get_running_loop()
         self.loop.add_signal_handler(
             signal.SIGINT, lambda: asyncio.create_task(self.signal_handler())
@@ -36,28 +50,12 @@ class App:
         self.loop.add_signal_handler(
             signal.SIGTERM, lambda: asyncio.create_task(self.signal_handler())
         )
-        await self.main_loop()
 
-    async def main_loop(self) -> None:
-        while self.running:
-            new_data: Data = self.update_data()
-            await self.save_data()
-            sleep(self.sleeping_time)
-
-    def update_data(self) -> Data:
-        editor_processes: list[
-            EditorProcess
-        ] = self.process_tracker.get_processes()
-        self.language_tracker.update(editor_processes)
-        data: Data= self.language_tracker.get_data()
-        return data
-
-    async def save_data(self):
+    async def save_data(self, new_data: Data):
         if len(self.data.data.keys()) > 0:
-            await self.data_handler.update(self.data)
+            await self.data_handler.update(new_data)
 
     async def signal_handler(self):
-        self.sleeping_time = 0
         await self.save_data()
         await self.data_handler.terminate()
         self.running = False
@@ -65,6 +63,7 @@ class App:
 
 def main() -> None:
     app = App()
+    app.on_init()
     asyncio.run(app.run())
 
 

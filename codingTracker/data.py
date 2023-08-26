@@ -1,20 +1,19 @@
 import json
-from time import time, strftime
+from time import strftime, time
 
 from codingTracker.process import EditorProcess
 
 
 class Data:
-    def __init__(self, data: dict[str, dict[str, [float, float]]] = None, encoding="utf-8"):
+    def __init__(self, data: dict[str, dict[str, list[float]]] = None):
         self.day_format: str = "%j %y"
         self.day = strftime(self.day_format)
         if data is None:
-            self.data: dict[str, dict[str, [float, float]]] = {self.day: {}}
+            self.data: dict[str, dict[str, list[float]]] = {self.day: {}}
         else:
             self.data = data
             if self.day not in self.data.keys():
                 self.data[self.day] = {}
-        self.encoding = encoding
 
     def update(self, editor_list: list[EditorProcess]) -> None:
         for editor in editor_list:
@@ -34,20 +33,11 @@ class Data:
         current_time: float = time()
         self.data[self.day][language] = [start_time, current_time]
 
-    def update_language(self, editor):
+    def update_language(self, editor) -> None:
         language: str = editor.language
         start_time: float = self.data[self.day][language][0]
         current_time: float = time()
         self.data[self.day][language] = [start_time, current_time]
-
-    def get_data_for_sending(self) -> bytes:
-        dump: str = json.dumps(self.data)
-        encoded: bytes = dump.encode(self.encoding)
-        return encoded
-
-    def update_from_remote(self, remote_data: bytes) -> None:
-        decoded = remote_data.decode(self.encoding)
-        self.data = json.loads(decoded)
 
     def reset_data(self) -> None:
         self.data = {}
@@ -64,18 +54,17 @@ class FileData:
             self.data = Data()
 
     def get_data_from_file(self) -> Data:
-        content: dict[str, dict[str, int]] = {}
-        day: str = ""
+        content: dict[str, dict[str, list[float]]] = {}
         with open(self.path, "r") as f:
             content = json.load(f)
         if len(content) > 2:
             data: Data = Data(content)
-            return Data
+            return data
         return Data()
 
     def save(self, data: dict[str, dict[str, int]]) -> None:
         with open(self.path, "w") as f:
-            content = json.dump(data, f)
+            json.dump(data, f)
 
     def is_data(self) -> bool:
         with open(self.path, "r") as f:

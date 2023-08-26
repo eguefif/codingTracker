@@ -1,33 +1,43 @@
-import pytest
-import json
-from time import time, strftime
+from time import strftime, time
 
-from codingTracker.data import Data, FileData
+import pytest
+
+from codingTracker.data import Data
 from codingTracker.process import EditorProcess
 
 DAY_FORMAT: str = "%j %y"
+
 
 @pytest.fixture
 def empty_data_object() -> Data:
     data: Data = Data()
     return data
 
+
 @pytest.fixture
 def data_day_object() -> Data:
     day: str = strftime(DAY_FORMAT)
     data_dict: dict[str, dict[str, int]] = {
-                                            day: {"python": [21.12, 41.23],
-                                            "javascript": [21.12, 41.23],
-                                            "c++": [21.12, 41.23],
-                                            "c": [21.12, 41.2]},
-                                            "110 2023": {"python": [21.12, 41.23],
-                                            "javascript": [21.12, 41.23],
-                                            "c": [21.12, 41.2]},
-                                            "111 2023": {"python": [21.12, 41.23],
-                                            "javascript": [21.12, 41.23],
-                                            "c": [21.12, 41.2]}}
+        day: {
+            "python": [21.12, 41.23],
+            "javascript": [21.12, 41.23],
+            "c++": [21.12, 41.23],
+            "c": [21.12, 41.2],
+        },
+        "110 2023": {
+            "python": [21.12, 41.23],
+            "javascript": [21.12, 41.23],
+            "c": [21.12, 41.2],
+        },
+        "111 2023": {
+            "python": [21.12, 41.23],
+            "javascript": [21.12, 41.23],
+            "c": [21.12, 41.2],
+        },
+    }
     data: Data = Data(data_dict)
     return data
+
 
 @pytest.fixture
 def processes() -> list[str]:
@@ -39,28 +49,47 @@ def processes() -> list[str]:
     retval = [EditorProcess(entry) for entry in ps_entries]
     return retval
 
+
 def test_update_data_with_empty_data_object(empty_data_object, processes):
     day: str = strftime(DAY_FORMAT)
     start_time: float = time()
     empty_data_object.update(processes)
-    assert start_time - 1 < empty_data_object.data[day]["python"][0] < start_time + 1 
-    assert start_time - 1 < empty_data_object.data[day]["python"][1] < start_time + 1 
-    assert start_time - 1 < empty_data_object.data[day]["c"][0] < start_time + 1 
-    assert start_time - 1 < empty_data_object.data[day]["c"][1] < start_time + 1 
-    assert start_time - 1 < empty_data_object.data[day]["javascript"][0] < start_time + 1 
-    assert start_time - 1 < empty_data_object.data[day]["javascript"][1] < start_time + 1 
+    assert (
+        start_time - 1
+        < empty_data_object.data[day]["python"][0]
+        < start_time + 1
+    )
+    assert (
+        start_time - 1
+        < empty_data_object.data[day]["python"][1]
+        < start_time + 1
+    )
+    assert start_time - 1 < empty_data_object.data[day]["c"][0] < start_time + 1
+    assert start_time - 1 < empty_data_object.data[day]["c"][1] < start_time + 1
+    assert (
+        start_time - 1
+        < empty_data_object.data[day]["javascript"][0]
+        < start_time + 1
+    )
+    assert (
+        start_time - 1
+        < empty_data_object.data[day]["javascript"][1]
+        < start_time + 1
+    )
 
 
 def test_update_data_with_data_of_the_day_already(data_day_object, processes):
     day: str = strftime(DAY_FORMAT)
-    start_time: float = 21.12 
+    start_time: float = 21.12
     data_day_object.update(processes)
     end_time: float = time()
     assert data_day_object.data[day]["python"][0] == start_time
-    assert end_time -1  < data_day_object.data[day]["python"][1] < end_time + 1
+    assert end_time - 1 < data_day_object.data[day]["python"][1] < end_time + 1
     assert data_day_object.data[day]["c"][0] < start_time + 1
     assert end_time - 1 < data_day_object.data[day]["c"][1] < end_time + 1
     assert data_day_object.data[day]["javascript"][0] == start_time
-    assert end_time - 1 < data_day_object.data[day]["javascript"][1] < end_time + 1
+    assert (
+        end_time - 1 < data_day_object.data[day]["javascript"][1] < end_time + 1
+    )
     assert data_day_object.data[day]["c++"][0] == start_time
     assert data_day_object.data[day]["c++"][1] == 41.23
