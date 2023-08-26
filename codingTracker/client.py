@@ -19,10 +19,11 @@ class App:
     ):
         self.sleeping_time = sleeping_time
         self.language_tracker: LanguageTracker = LanguageTracker()
-        self.data: Data = Data()
         self.data_handler: DataHandler = DataHandler(
             host_ip=host, host_port=port
         )
+        saved_data = self.data_handler.get_file_data()
+        self.data: Data = Data()
         self.process_tracker: ProcessTracker = ProcessTracker()
         self.running: bool = True
         self.loop: asyncio.AbstractEventLoop = None

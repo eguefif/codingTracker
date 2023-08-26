@@ -50,3 +50,10 @@ class DataHandler:
 
     async def terminate(self):
         await self.connexion.terminate_connection()
+
+    def get_data_from_file(self):
+        data: dict[str, dict[str, [float, float]]] = None
+        with open(self.file_path, "r") as f:
+            content: str = f.read()
+        if len(content) > 2:
+            data = json.

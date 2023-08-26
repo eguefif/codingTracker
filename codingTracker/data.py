@@ -1,13 +1,44 @@
 import json
+from time import time, strftime
+
+from codingTracker.process import EditorProcess
 
 
 class Data:
-    def __init__(self, data: dict[str, dict[str, int]] = None, encoding="utf-8"):
+    def __init__(self, data: dict[str, dict[str, [float, float]]] = None, encoding="utf-8"):
+        self.day_format: str = "%j %y"
+        self.day = strftime(self.day_format)
         if data is None:
-            self.data: dict[str, dict[str, int]] = {}
+            self.data: dict[str, dict[str, [float, float]]] = {self.day: {}}
         else:
             self.data = data
+            if self.day not in self.data.keys():
+                self.data[self.day] = {}
         self.encoding = encoding
+
+    def update(self, editor_list: list[EditorProcess]) -> None:
+        for editor in editor_list:
+            if self.is_new_language(editor):
+                self.update_language(editor)
+            else:
+                self.add_language(editor)
+
+    def is_new_language(self, editor: EditorProcess) -> bool:
+        if editor.language in self.data[self.day].keys():
+            return True
+        return False
+
+    def add_language(self, editor: EditorProcess) -> None:
+        language: str = editor.language
+        start_time: float = editor.start_time
+        current_time: float = time()
+        self.data[self.day][language] = [start_time, current_time]
+
+    def update_language(self, editor):
+        language: str = editor.language
+        start_time: float = self.data[self.day][language][0]
+        current_time: float = time()
+        self.data[self.day][language] = [start_time, current_time]
 
     def get_data_for_sending(self) -> bytes:
         dump: str = json.dumps(self.data)

@@ -1,4 +1,7 @@
 Todo:
+test new data class:
+	-test when it is a new day
+	- test when the day is already there with several day already.
 Code the part that connect to the server in the client
 -handle signal sigint and sigterm
 - the filedata should be able to return all the data from a file, not just a day.
