@@ -21,10 +21,10 @@ class serverForTest:
             message: bytes = await reader.read(size)
             str_message: str = message.decode()
             retval: str = str(size) + str_message
-            with open("./tests/temp", "w") as f:
-                f.write(retval)
             writer.write(b"1")
             await writer.drain()
+            with open("./tests/temp", "w") as f:
+                f.write(retval)
 
     def signal_handler(self, sig, frame):
         self.server.close()

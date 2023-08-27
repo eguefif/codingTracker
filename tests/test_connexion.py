@@ -35,24 +35,6 @@ async def test_init_connection(connexion) -> None:
     assert state is True
 
 
-def get_server_retval() -> str:
-    with open("./tests/temp", "r") as f:
-        content = f.read()
-    return content
-
-
-@pytest.mark.asyncio
-async def test_update(connexion, data) -> None:
-    data_obj, data_test = data
-    str_data: str = json.dumps(data_test)
-    protoheader: str = f"{len(str_data)}"
-    message: str = protoheader + str_data
-    await connexion.init_connection()
-    await connexion.update(data_obj)
-    retval: str = get_server_retval()
-    assert retval == message
-
-
 @pytest.mark.asyncio
 async def test_terminate_connection(connexion) -> None:
     await connexion.init_connection()

@@ -15,14 +15,16 @@ class DataHandler:
         self.encoding = encoding
 
     async def on_init(self):
-        await self.connexion.init_connection()
+        try:
+            await self.connexion.init_connection()
+        except Exception as e:
+            print("Exception while initialize connexion ", e)
 
     async def update(self, data: Data):
-        check: bool = False
+        synced_with_server: bool = False
         if self.connexion.state is True:
             await self.connexion.update(data)
-            check = await self.connexion.is_data_synced()
-        if not check or self.connexion.state is False:
+        else:
             self.file_handler.save(data)
 
     async def terminate(self):

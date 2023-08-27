@@ -13,7 +13,7 @@ SRC = ./codingTracker/client.py ./codingTracker/datahandler.py \
 
 test:
 	./tests/server_for_test.py &
-	pytest
+	pytest -vv
 	pgrep server_for | xargs kill
 
 killserver:
