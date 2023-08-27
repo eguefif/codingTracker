@@ -21,12 +21,16 @@ class Connexion:
             print(f"Exception while connecting: {e}")
             self.state = False
             return
+        print("Connexion established")
         self.state = True
 
     async def update(self, data: Data) -> None:
-        message = self.get_encoded_message(data)
-        await self.send_protoheader(message)
-        await self.send(message)
+        print("Try to send")
+        if self.state:
+            print("sending")
+            message = self.get_encoded_message(data)
+            await self.send_protoheader(message)
+            await self.send(message)
 
     def get_encoded_message(self, data: Data) -> bytes:
         dump: str = json.dumps(data.data)
@@ -47,10 +51,11 @@ class Connexion:
         await self.writer.drain()
 
     async def is_data_synced(self) -> bool:
-        retval: bytes = await self.reader.read(1)
-        message: str = retval.decode(self.encoding)
-        if message == "1":
-            return True
+        if self.state is True:
+            retval: bytes = await self.reader.read(1)
+            message: str = retval.decode(self.encoding)
+            if message == "1":
+                return True
         return False
 
     async def terminate_connection(self) -> None:

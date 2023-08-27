@@ -1,15 +1,22 @@
 TESTS = ./tests/test_process.py \
-		./tests/test_data.py
+		./tests/test_data.py \
+		./tests/test_connexion.py \
+		./tests/test_filehandler.py \
+		./tests/test_datahandler.py
+
 SRC = ./codingTracker/client.py ./codingTracker/datahandler.py \
 	  ./codingTracker/connexion.py ./codingTracker/process.py \
 	  ./codingTracker/server.py ./codingTracker/data.py
 	
 
-.PHONY: test lint type checkall
+.PHONY: test lint type checkall killserver
 
 test:
 	./tests/server_for_test.py &
 	pytest
+	pgrep server_for | xargs kill
+
+killserver:
 	pgrep server_for | xargs kill
 	
 

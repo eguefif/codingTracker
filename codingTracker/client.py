@@ -22,8 +22,8 @@ class App:
 
         self.data_handler: DataHandler = DataHandler(
             file_path="./data.dat",
-            host_ip=host,
-            host_port=port,
+            host=host,
+            port=port,
             encoding="utf-8",
         )
         self.data: Data = Data()

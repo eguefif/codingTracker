@@ -17,7 +17,7 @@ class App:
     def __init__(self, host="127.0.0.1", port=10000) -> None:
         self.host: str = host
         self.port: int = port
-        self.file: FileData = FileData(nodata=False, path="./data_server.dat")
+        self.file: FileData = FileData(path="./data_server.dat")
         self.running: bool = True
         self.clients: list[asyncio.StreamWriter] = []
         self.tasks: list[asyncio.Task] = []

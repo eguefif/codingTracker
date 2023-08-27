@@ -15,31 +15,6 @@ def empty_data_object() -> Data:
 
 
 @pytest.fixture
-def data_day_object() -> Data:
-    day: str = strftime(DAY_FORMAT)
-    data_dict: dict[str, dict[str, list[float]]] = {
-        day: {
-            "python": [21.12, 41.23],
-            "javascript": [21.12, 41.23],
-            "c++": [21.12, 41.23],
-            "c": [21.12, 41.2],
-        },
-        "110 2023": {
-            "python": [21.12, 41.23],
-            "javascript": [21.12, 41.23],
-            "c": [21.12, 41.2],
-        },
-        "111 2023": {
-            "python": [21.12, 41.23],
-            "javascript": [21.12, 41.23],
-            "c": [21.12, 41.2],
-        },
-    }
-    data: Data = Data(data_dict)
-    return data
-
-
-@pytest.fixture
 def processes() -> list[EditorProcess]:
     ps_entries: list[str] = [
         "eguefif     33464  0.0  0.0  33464 11648 pts/1    T    06:46   0:00 vim client.py",

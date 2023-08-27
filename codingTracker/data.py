@@ -44,23 +44,22 @@ class Data:
 
 
 class FileData:
-    def __init__(self, nodata=False, path: str = "./data.dat"):
+    def __init__(self, path: str = "./data.dat"):
         self.path: str = path
         self.day_format: str = "%j %y"
         self.data: Data = None
-        if not nodata:
-            self.data = self.get_data_from_file()
-        else:
-            self.data = Data()
+        self.data = self.get_data_from_file()
 
     def get_data_from_file(self) -> Data:
         content: dict[str, dict[str, list[float]]] = {}
         with open(self.path, "r") as f:
-            content = json.load(f)
-        if len(content) > 2:
-            data: Data = Data(content)
-            return data
-        return Data()
+            try:
+                content = json.load(f)
+            except json.decoder.JSONDecodeError:
+                data: Data = Data(content)
+                return Data()
+        data = Data(content)
+        return data
 
     def save(self, data: Data) -> None:
         data_dict: dict[str, dict[str, list[float]]] = data.data
