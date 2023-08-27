@@ -14,13 +14,28 @@ def shutdown():
 
 
 class App:
-    def __init__(self, host="127.0.0.1", port=10000) -> None:
+    def __init__(self, path="./data_server.dat", host="127.0.0.1", port=10000) -> None:
         self.host: str = host
         self.port: int = port
-        self.file: FileData = FileData(path="./data_server.dat")
+        self.path: str = path
         self.running: bool = True
         self.clients: list[asyncio.StreamWriter] = []
         self.tasks: list[asyncio.Task] = []
+
+    async def run(self) -> None:
+        self.server = await asyncio.start_server(
+            self.process_client, host=self.host, port=self.port
+        )
+        loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
+        loop.add_signal_handler(signal.SIGTERM, shutdown)
+        loop.add_signal_handler(signal.SIGINT, shutdown)
+        try:
+            await self.server.serve_forever()
+        except GraceFullExit:
+            await self.terminate_server()
+        finally:
+            self.server.close()
+            await self.server.wait_closed()
 
     async def process_client(
         self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter
@@ -49,6 +64,8 @@ class App:
             writer.write(ret.encode("utf-8"))
             await writer.drain()
             self.save_data(data)
+        writer.close()
+        await writer.wait_closed()
 
     async def get_message_size(self, reader: asyncio.StreamReader) -> int:
         size: bytes = await reader.read(5)
@@ -63,8 +80,10 @@ class App:
         return json.loads(message)
 
     def save_data(self, dict_data: dict[str, dict[str, list[float]]]):
+        file_handler: DataFile = DataFile(self.path)
         data: Data = Data(dict_data)
-        self.file.save(data)
+        data.update_from_data(file_handler.data)
+        self.file_handler.save(data)
 
     async def terminate_server(self) -> None:
         for writer in self.clients:
@@ -75,20 +94,6 @@ class App:
                     print("Closing streams exception: ", e)
                 await writer.wait_closed()
 
-    async def run(self) -> None:
-        self.server = await asyncio.start_server(
-            self.process_client, host=self.host, port=self.port
-        )
-        loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
-        loop.add_signal_handler(signal.SIGTERM, shutdown)
-        loop.add_signal_handler(signal.SIGINT, shutdown)
-        try:
-            await self.server.serve_forever()
-        except GraceFullExit:
-            await self.terminate_server()
-        finally:
-            self.server.close()
-            await self.server.wait_closed()
 
 
 def main() -> None:

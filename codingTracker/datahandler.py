@@ -21,11 +21,19 @@ class DataHandler:
             print("Exception while initialize connexion ", e)
 
     async def update(self, data: Data):
-        synced_with_server: bool = False
-        if self.connexion.state is True:
+        if self.connexion.state:
             await self.connexion.update(data)
         else:
             self.file_handler.save(data)
+
+    def erase_data(self) -> None:
+        self.file_handler.erase_data()
+
+    async def is_synced(self) -> bool:
+        retval: bool = await self.connexion.is_data_synced()
+        if retval:
+            return True
+        return False
 
     async def terminate(self):
         await self.connexion.terminate_connection()

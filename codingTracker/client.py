@@ -1,6 +1,5 @@
 import asyncio
 import signal
-from time import sleep
 
 from codingTracker.data import Data
 from codingTracker.datahandler import DataHandler
@@ -13,7 +12,7 @@ class App:
         sleeping_time: int = 5,
         host="127.0.0.1",
         port=10000,
-        data="./data.dat",
+        file_path="./data.dat",
         encoding="utf-8",
     ):
         self.sleeping_time = sleeping_time
@@ -21,7 +20,7 @@ class App:
         self.loop: asyncio.AbstractEventLoop = None
 
         self.data_handler: DataHandler = DataHandler(
-            file_path="./data.dat",
+            file_path=file_path,
             host=host,
             port=port,
             encoding="utf-8",
@@ -30,33 +29,38 @@ class App:
         self.process_tracker: ProcessTracker = ProcessTracker()
 
     def on_init(self):
-        self.configure_signal()
+        self._configure_signals()
         self.data_handler.init_connection()
+
+    def _configure_signals(self):
+        self.loop = asyncio.get_running_loop()
+        self.loop.add_signal_handler(
+            signal.SIGINT, lambda: asyncio.create_task(self._signal_handler())
+        )
+        self.loop.add_signal_handler(
+            signal.SIGTERM, lambda: asyncio.create_task(self._signal_handler())
+        )
 
     async def run(self) -> None:
         while self.running:
-            editor_list: list[
-                EditorProcess
-            ] = self.process_tracker.get_processes()
-            new_data: Data = Data()
-            new_data.update(editor_list)
-            await self.save_data(new_data)
-            sleep(self.sleeping_time)
+            self._update_data()
+            await self._save_data()
+            await asyncio.wait_for(self._check_synced(), 1)
 
-    def configure_signals(self):
-        self.loop = asyncio.get_running_loop()
-        self.loop.add_signal_handler(
-            signal.SIGINT, lambda: asyncio.create_task(self.signal_handler())
-        )
-        self.loop.add_signal_handler(
-            signal.SIGTERM, lambda: asyncio.create_task(self.signal_handler())
-        )
+    def _update_data(self) -> None:
+        editor_list: list[EditorProcess] = self.process_tracker.get_processes()
+        self.data.update(editor_list)
 
-    async def save_data(self, new_data: Data):
-        if len(self.data.data.keys()) > 0:
-            await self.data_handler.update(new_data)
+    async def _save_data(self):
+        await self.data_handler.update(self.data)
 
-    async def signal_handler(self):
+    async def _check_synced(self) -> None:
+        retval: bool = await self.data_handler.is_synced()
+        if retval:
+            self.data_handler.erase_data()
+            self.data.reset_data()
+
+    async def _signal_handler(self):
         await self.save_data()
         await self.data_handler.terminate()
         self.running = False
