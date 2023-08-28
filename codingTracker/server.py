@@ -14,7 +14,9 @@ def shutdown():
 
 
 class App:
-    def __init__(self, path="./data_server.dat", host="127.0.0.1", port=10000) -> None:
+    def __init__(
+        self, path="./data_server.dat", host="127.0.0.1", port=10000
+    ) -> None:
         self.host: str = host
         self.port: int = port
         self.path: str = path
@@ -40,7 +42,6 @@ class App:
     async def process_client(
         self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter
     ) -> None:
-        print("new connexion with ", writer.get_extra_info("peername"))
         self.clients.append(writer)
         task: asyncio.Task = asyncio.create_task(self.listen(reader, writer))
         self.tasks.append(task)
@@ -48,22 +49,21 @@ class App:
     async def listen(
         self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter
     ):
-        while True:
+        running = True
+        while running:
             data: dict[str, dict[str, list[float]]] = {}
             size: int = await self.get_message_size(reader)
-            if size == -1:
-                break
-            data = await self.get_data(reader, size)
-            if data == "\0":
-                break
-            print(data)
-            if len(data) > 0:
+            if size > 0:
+                data = await self.get_data(reader, size)
+                if data == "\0":
+                    break
                 ret: str = "1"
+                self.save_data(data)
             else:
                 ret = "0"
+                running = False
             writer.write(ret.encode("utf-8"))
             await writer.drain()
-            self.save_data(data)
         writer.close()
         await writer.wait_closed()
 
@@ -80,10 +80,11 @@ class App:
         return json.loads(message)
 
     def save_data(self, dict_data: dict[str, dict[str, list[float]]]):
-        file_handler: DataFile = DataFile(self.path)
+        file_handler: FileData = FileData(self.path)
         data: Data = Data(dict_data)
-        data.update_from_data(file_handler.data)
-        self.file_handler.save(data)
+        current_data: Data = file_handler.data
+        current_data.update_from_data(data)
+        file_handler.save(current_data)
 
     async def terminate_server(self) -> None:
         for writer in self.clients:
@@ -93,7 +94,6 @@ class App:
                 except Exception as e:
                     print("Closing streams exception: ", e)
                 await writer.wait_closed()
-
 
 
 def main() -> None:

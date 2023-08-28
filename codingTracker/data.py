@@ -22,16 +22,18 @@ class Data:
             else:
                 self.add_language(editor)
 
-    def update_from_data(self, new_data: Data) -> None:
-        for date in new_data.keys():
+    def update_from_data(self, new_data: "Data") -> None:
+        for date in new_data.data.keys():
             if date in self.data.keys():
-                for language in new_data[date].keys():
-                    if language in self.data[date]:
-                        self.data[date][language] += new_data[date][language]
-                    else
-                    self.data[date][language] = new_data[date][language]
+                for language in new_data.data[date].keys():
+                    # if language in self.data[date]:
+                    #    self.data[date][language][1] += new_data.data[date][language][1]
+                    # else:
+                    self.data[date][language][1] = new_data.data[date][
+                        language
+                    ][1]
             else:
-                self.data[date] = new_data[date]
+                self.data[date] = new_data.data[date]
 
     def is_new_language(self, editor: EditorProcess) -> bool:
         if editor.language in self.data[self.day].keys():
@@ -67,7 +69,7 @@ class FileData:
             try:
                 content = json.load(f)
             except json.decoder.JSONDecodeError:
-                data: Data = Data(content)
+                data: Data = Data()
                 return Data()
         data = Data(content)
         return data

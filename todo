@@ -1,8 +1,11 @@
 Todo:
-	- test class datahandler
+	- Acceptance tests
+	- Check how to launch a program at the beginning of a user session
 
-How to test connection
-	-Write a little server that print on stdou everything that is arriving.
-	- use asyncio.create_subprocess_shell() to run this server
-	- We'll assert the stdout with what we put in connexion function test
-
+Acceptance tests
+Different situation:
+	- Always connected to server
+	- Always disconnected to server
+	- Start connected, disconnection, connection
+	- Start disconnected, connect
+	- Start disconnected, connect, disconnect, connect
