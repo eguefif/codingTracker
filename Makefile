@@ -28,6 +28,7 @@ acceptance_test:
 
 killserver:
 	pgrep server_for | xargs kill
+	pgrep codingTrackerS | xargs kill
 	
 
 lint:

@@ -1,6 +1,7 @@
 import asyncio
 import json
 import signal
+import logging
 
 from codingTracker.data import Data, FileData
 

@@ -28,9 +28,9 @@ class App:
         self.data: Data = Data()
         self.process_tracker: ProcessTracker = ProcessTracker()
 
-    def on_init(self):
+    async def on_init(self):
         self._configure_signals()
-        self.data_handler.init_connection()
+        await self.data_handler.on_init()
 
     def _configure_signals(self):
         self.loop = asyncio.get_running_loop()
@@ -42,6 +42,7 @@ class App:
         )
 
     async def run(self) -> None:
+        await self.on_init()
         while self.running:
             self._update_data()
             await self._save_data()
@@ -61,14 +62,13 @@ class App:
             self.data.reset_data()
 
     async def _signal_handler(self):
-        await self.save_data()
+        await self._save_data()
         await self.data_handler.terminate()
         self.running = False
 
 
 def main() -> None:
     app = App()
-    app.on_init()
     asyncio.run(app.run())
 
 
