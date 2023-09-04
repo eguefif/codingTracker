@@ -1,6 +1,8 @@
 # Specific file to ignore in the project
 data_server.dat
 temp
+client.cfg
+server.cfg
 #Vim
 # Swap
 [._]*.s[a-v][a-z]

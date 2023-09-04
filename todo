@@ -1,4 +1,6 @@
 Todo:
+	- Make a configuration file
+	- Check exception for invalid file in both the configuration file and the command line arg.
 	- Acceptance tests
 	- Check how to launch a program at the beginning of a user session
 

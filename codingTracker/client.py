@@ -1,5 +1,9 @@
 import asyncio
+import json
 import signal
+import sys
+from pathlib import Path
+from time import sleep
 
 from codingTracker.data import Data
 from codingTracker.datahandler import DataHandler
@@ -12,19 +16,32 @@ class App:
         sleeping_time: int = 5,
         host="127.0.0.1",
         port=10000,
-        file_path="./data.dat",
+        path="./data.dat",
         encoding="utf-8",
     ):
-        self.sleeping_time = sleeping_time
-        self.running: bool = True
-        self.loop: asyncio.AbstractEventLoop = None
+        cfg_path = Path("./client.cfg")
+        if cfg_path.exists():
+            with open(cfg_path, "r") as f:
+                cfg_file = json.load(f)
+            print("test: ", cfg_file)
+            self.sleeping_time = cfg_file["sleeping_time"]
+            self.data_handler: DataHandler = DataHandler(
+                file_path=cfg_file["path"],
+                host=cfg_file["ip"],
+                port=cfg_file["port"],
+                encoding=cfg_file["encoding"],
+            )
+        else:
+            self.sleeping_time = sleeping_time
+            self.loop: asyncio.AbstractEventLoop = None
 
-        self.data_handler: DataHandler = DataHandler(
-            file_path=file_path,
-            host=host,
-            port=port,
-            encoding="utf-8",
-        )
+            self.data_handler = DataHandler(
+                file_path=path,
+                host=host,
+                port=port,
+                encoding="utf-8",
+            )
+        self.running: bool = True
         self.data: Data = Data()
         self.process_tracker: ProcessTracker = ProcessTracker()
 
@@ -47,6 +64,7 @@ class App:
             self._update_data()
             await self._save_data()
             await asyncio.wait_for(self._check_synced(), 1)
+            sleep(self.sleeping_time)
 
     def _update_data(self) -> None:
         editor_list: list[EditorProcess] = self.process_tracker.get_processes()
@@ -68,7 +86,14 @@ class App:
 
 
 def main() -> None:
-    app = App()
+    if len(sys.argv) > 1:
+        if len(sys.argv) == 4:
+            app = App(host=sys.argv[1], port=int(sys.argv[2]), path=sys.argv[3])
+        else:
+            print("Usage: codingTracker HOST_IP PORT DATA_PATH")
+            sys.exit()
+    else:
+        app = App()
     asyncio.run(app.run())
 
 

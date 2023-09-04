@@ -2,7 +2,9 @@ UNIT_TESTS = ./tests/test_process.py \
 		./tests/test_data.py \
 		./tests/test_connexion.py \
 		./tests/test_filehandler.py \
-		./tests/test_datahandler.py
+		./tests/test_datahandler.py \
+		./tests/test_client.py
+
 
 SERVER_TESTS = ./tests/test_server.py
 
@@ -10,7 +12,8 @@ ACCEPTANCE_TESTS = ./tests/test_acceptance.py
 
 SRC = ./codingTracker/client.py ./codingTracker/datahandler.py \
 	  ./codingTracker/connexion.py ./codingTracker/process.py \
-	  ./codingTracker/server.py ./codingTracker/data.py
+	  ./codingTracker/server.py ./codingTracker/data.py \
+	  ./codingTracker/setup.py
 	
 
 .PHONY: test lint type checkall killserver

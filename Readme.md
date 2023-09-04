@@ -12,8 +12,15 @@ The client is installed on your computer and track your coding activity and send
 ### Dependencies
 
 ### Installing
+Create a virtual environment: python3 -m venv venv
+Activate it: source venv/bin/activate
+
+pip install codingTracker
+codingTrackerSetup
 
 ### Executing program
+Run the server: codingTrackerServer
+Run the client: codingTracker
 
 ## Authors
 
@@ -27,4 +34,4 @@ eguefif@fastmail.com
 This project is licensed under the MIT License - see the LICENSE.md file for details
 
 ## Version
-
+0.1.b

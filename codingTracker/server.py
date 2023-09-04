@@ -1,7 +1,7 @@
 import asyncio
 import json
 import signal
-import logging
+import sys
 
 from codingTracker.data import Data, FileData
 
@@ -98,7 +98,16 @@ class App:
 
 
 def main() -> None:
-    app: App = App()
+    if len(sys.argv) > 1:
+        if len(sys.argv) == 4:
+            app: App = App(
+                host=sys.argv[1], port=int(sys.argv[2]), path=sys.argv[3]
+            )
+        else:
+            print("Usage: codingTrackerServer HOST_IP PORT FILE_PATH")
+            sys.exit()
+    else:
+        app = App()
     asyncio.run(app.run())
 
 
