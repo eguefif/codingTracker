@@ -1,8 +1,23 @@
 Todo:
-	- Make a configuration file
-	- Check exception for invalid file in both the configuration file and the command line arg.
-	- Acceptance tests
-	- Check how to launch a program at the beginning of a user session
+	- Setup just for client
+		Remove server question
+		Check input
+		Make default value work
+		Change the way it works, make a data oriented function
+	- Modify data structure:
+		Problem:
+			At the moment, when you stop coding in one language and start again, it will capture the whole span
+			starting from the first time you coded in the day to the last time without discarding what happened
+			when you took a break.
+		Data structure to use:
+			- Name: session
+			- Date: %j %y
+			- Language
+			- [starting_time, ending_time]
+		Explanation:
+			The Persistence class is responsible for the data saving in hard-disk. It will save each session in a sqlite database.
+			It checks
+	
 
 Acceptance tests
 Different situation:

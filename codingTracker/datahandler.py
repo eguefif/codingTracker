@@ -10,8 +10,8 @@ class DataHandler:
         port=10000,
         encoding="utf-8",
     ) -> None:
+        self.connexion: Connexion = Connexion(host=host, port=port, encoding=encoding)
         self.file_handler: FileData = FileData(path=file_path)
-        self.connexion: Connexion = Connexion(host=host, port=port)
         self.encoding = encoding
 
     async def on_init(self):

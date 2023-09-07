@@ -1,4 +1,5 @@
 import json
+import os
 from time import strftime, time
 
 from codingTracker.process import EditorProcess
@@ -9,7 +10,8 @@ class Data:
         self.day_format: str = "%j %y"
         self.day = strftime(self.day_format)
         if data is None:
-            self.data: dict[str, dict[str, list[float]]] = {self.day: {}}
+            self.data: dict[str, dict[str, list[float]]] = {}
+            self.data[self.day] = {}
         else:
             self.data = data
             if self.day not in self.data.keys():
@@ -26,12 +28,14 @@ class Data:
         for date in new_data.data.keys():
             if date in self.data.keys():
                 for language in new_data.data[date].keys():
-                    # if language in self.data[date]:
-                    #    self.data[date][language][1] += new_data.data[date][language][1]
-                    # else:
-                    self.data[date][language][1] = new_data.data[date][
-                        language
-                    ][1]
+                    if language in self.data[date].keys():
+                        self.data[date][language][1] = new_data.data[date][
+                            language
+                        ][1]
+                    else:
+                        self.data[date][language] = new_data.data[date][
+                            language
+                        ]
             else:
                 self.data[date] = new_data.data[date]
 
@@ -54,6 +58,7 @@ class Data:
 
     def reset_data(self) -> None:
         self.data = {}
+        self.data[self.day] = {}
 
 
 class FileData:
@@ -61,7 +66,11 @@ class FileData:
         self.path: str = path
         self.day_format: str = "%j %y"
         self.data: Data = None
-        self.data = self.get_data_from_file()
+        if os.path.exists(self.path):
+            self.data = self.get_data_from_file()
+        else:
+            with open(self.path, "w") as f:
+                f.write("{}")
 
     def get_data_from_file(self) -> Data:
         content: dict[str, dict[str, list[float]]] = {}

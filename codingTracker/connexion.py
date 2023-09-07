@@ -21,13 +21,11 @@ class Connexion:
             print(f"Exception while connecting: {e}")
             self.state = False
             return
-        print("Connexion established")
+        print("Established connection with:", self.writer.get_extra_info("peername"))
         self.state = True
 
     async def update(self, data: Data) -> None:
-        print("Try to send")
         if self.state:
-            print("sending")
             message = self.get_encoded_message(data)
             await self.send_protoheader(message)
             await self.send(message)
@@ -46,7 +44,6 @@ class Connexion:
         return protoheader.encode(self.encoding)
 
     async def send(self, message: bytes) -> None:
-        print("sending : ", message)
         self.writer.write(message)
         await self.writer.drain()
 
@@ -60,6 +57,7 @@ class Connexion:
 
     async def terminate_connection(self) -> None:
         if self.state:
+            print("test end connection")
             self.writer.write_eof()
             self.writer.close()
             await self.writer.wait_closed()

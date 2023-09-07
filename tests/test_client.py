@@ -1,9 +1,11 @@
 import asyncio
-import pytest
 import json
+
+import pytest
 
 from codingTracker.client import App
 from codingTracker.data import Data
+
 
 @pytest.fixture
 def app_no_connexion(data_day_object: Data) -> App:
@@ -21,41 +23,49 @@ async def test_save(app_no_connexion, data_day_object) -> None:
 
 
 @pytest.fixture
-def app_connected(data_day_object) -> None:
+def app_connected(data_day_object) -> App:
     app = App(path="./temp")
     app.data = data_day_object
     return app
 
 
 @pytest.mark.asyncio
-async def test_save_connected(app_connected, data_day_object, event_loop) -> None:
+async def test_save_connected(
+    app_connected, data_day_object, event_loop
+) -> None:
     await app_connected.data_handler.on_init()
     await app_connected._save_data()
     retval: bytes = await asyncio.wait_for(
-            app_connected.data_handler.connexion.reader.read(1), 1)
+        app_connected.data_handler.connexion.reader.read(1), 1
+    )
     assert retval == b"1"
 
+
 @pytest.mark.asyncio
-async def test_save_connected_synced(app_connected, data_day_object, event_loop) -> None:
+async def test_save_connected_synced(
+    app_connected, data_day_object, event_loop
+) -> None:
     await app_connected.data_handler.on_init()
     await app_connected._save_data()
     await app_connected._check_synced()
     with open(app_connected.data_handler.file_handler.path, "r") as f:
         content = f.read()
-    assert content == '{}'
+    assert content == "{}"
     assert app_connected.data.data == {}
+
 
 @pytest.fixture
 def create_setup_file() -> None:
     test_dict: dict[str, str | int] = {
-            "sleeping_time": 15,
-            "ip": "127.0.0.2",
-            "port": 20000,
-            "path": "./data.dat",
-            "encoding": "utf-16",
-            }
+        "sleeping_time": 15,
+        "ip": "127.0.0.2",
+        "port": 20000,
+        "path": "./data.dat",
+        "encoding": "utf-16",
+    }
     with open("./client.cfg", "w") as f:
         json.dump(test_dict, f)
+
 
 def test_setup_file(create_setup_file) -> None:
     app = App()

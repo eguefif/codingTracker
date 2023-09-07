@@ -13,10 +13,10 @@ ACCEPTANCE_TESTS = ./tests/test_acceptance.py
 SRC = ./codingTracker/client.py ./codingTracker/datahandler.py \
 	  ./codingTracker/connexion.py ./codingTracker/process.py \
 	  ./codingTracker/server.py ./codingTracker/data.py \
-	  ./codingTracker/setup.py
+	  ./codingTracker/setup_app.py
 	
 
-.PHONY: test lint type checkall killserver
+.PHONY: test lint type checkall killserver docker
 
 test:
 	./tests/server_for_test.py &
@@ -55,3 +55,7 @@ type:
 	mypy --no-strict-optional $(ACCEPTANCE_TESTS)
 
 checkall: lint type test
+
+docker:
+	#docker buildx create --driver=docker-container --name=container
+	docker buildx build --builder=container --platform=linux/amd64,linux/arm64,linux/arm/v7 -t eguefif/codingtracker:v0.0.2 --push .

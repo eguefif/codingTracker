@@ -23,7 +23,6 @@ class App:
         if cfg_path.exists():
             with open(cfg_path, "r") as f:
                 cfg_file = json.load(f)
-            print("test: ", cfg_file)
             self.sleeping_time = cfg_file["sleeping_time"]
             self.data_handler: DataHandler = DataHandler(
                 file_path=cfg_file["path"],
@@ -44,6 +43,13 @@ class App:
         self.running: bool = True
         self.data: Data = Data()
         self.process_tracker: ProcessTracker = ProcessTracker()
+    async def run(self) -> None:
+        await self.on_init()
+        while self.running:
+            self._update_data()
+            await self._save_data()
+            await asyncio.wait_for(self._check_synced(), 1)
+            await asyncio.sleep(self.sleeping_time)
 
     async def on_init(self):
         self._configure_signals()
@@ -57,14 +63,6 @@ class App:
         self.loop.add_signal_handler(
             signal.SIGTERM, lambda: asyncio.create_task(self._signal_handler())
         )
-
-    async def run(self) -> None:
-        await self.on_init()
-        while self.running:
-            self._update_data()
-            await self._save_data()
-            await asyncio.wait_for(self._check_synced(), 1)
-            sleep(self.sleeping_time)
 
     def _update_data(self) -> None:
         editor_list: list[EditorProcess] = self.process_tracker.get_processes()
