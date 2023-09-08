@@ -1,8 +1,10 @@
 from codingTracker.connexion import Connexion
-from codingTracker.data import Data, FileData
+from codingTracker.data import Session, SessionTracker
+from codingTracker.sqlhandler import SqlHandler
+from codingTracker.process import EditorProcess
 
 
-class DataHandler:
+class Persistence:
     def __init__(
         self,
         file_path="./data.dat",
@@ -11,8 +13,9 @@ class DataHandler:
         encoding="utf-8",
     ) -> None:
         self.connexion: Connexion = Connexion(host=host, port=port, encoding=encoding)
-        self.file_handler: FileData = FileData(path=file_path)
+        self.sql: SqlHandler = SqlHander()
         self.encoding = encoding
+        self.data: SessionTracker= SessionTracker()
 
     async def on_init(self):
         try:
@@ -20,11 +23,12 @@ class DataHandler:
         except Exception as e:
             print("Exception while initialize connexion ", e)
 
-    async def update(self, data: Data):
+    async def update(self, editors: list[EditorProcess]):
+        self.data.update(editors)
         if self.connexion.state:
-            await self.connexion.update(data)
+            await self.connexion.update(self.data)
         else:
-            self.file_handler.save(data)
+            self.sql.save(self.data)
 
     def erase_data(self) -> None:
         self.file_handler.erase_data()

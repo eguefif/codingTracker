@@ -1,3 +1,5 @@
+Right now:
+	-finir test process. Think to use the first list of str for a parametrize test.
 Todo:
 	- Setup just for client
 		Remove server question
@@ -13,10 +15,20 @@ Todo:
 			- Name: session
 			- Date: %j %y
 			- Language
+			- Running
 			- [starting_time, ending_time]
 		Explanation:
 			The Persistence class is responsible for the data saving in hard-disk. It will save each session in a sqlite database.
 			It checks
+		Design:
+			A new problem arises with this new format. How to know that a session is running or finished. We need to add a new attribute to the class: running.
+
+	- Sync with server
+		Change the way client and server make sure data are synced.
+		use a check sum of the last batch. The client can send a checksum along with the number of last entry. The server pull the last entry and calculate the checksum. It
+		then respond with either a 1 for OK or something else for not okey. Then the client send everything, the server make sure everything is alright and notify the client.
+		When the client get the notification, it delete the data locally.
+		If the server is unable to sort it out, it notify the client, the client then ask the user if he can delete the data.
 	
 
 Acceptance tests

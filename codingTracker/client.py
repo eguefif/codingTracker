@@ -5,9 +5,8 @@ import sys
 from pathlib import Path
 from time import sleep
 
-from codingTracker.data import Data
-from codingTracker.datahandler import DataHandler
-from codingTracker.process import EditorProcess, ProcessTracker
+from codingTracker.datahandler import Persistence
+from codingTracker.process import EditorProcess, EditorTracker
 
 
 class App:
@@ -24,7 +23,7 @@ class App:
             with open(cfg_path, "r") as f:
                 cfg_file = json.load(f)
             self.sleeping_time = cfg_file["sleeping_time"]
-            self.data_handler: DataHandler = DataHandler(
+            self.persistence: Persistence = Persistence(
                 file_path=cfg_file["path"],
                 host=cfg_file["ip"],
                 port=cfg_file["port"],
@@ -33,16 +32,15 @@ class App:
         else:
             self.sleeping_time = sleeping_time
             self.loop: asyncio.AbstractEventLoop = None
-
-            self.data_handler = DataHandler(
+            self.persistence = Persistence(
                 file_path=path,
                 host=host,
                 port=port,
                 encoding="utf-8",
             )
         self.running: bool = True
-        self.data: Data = Data()
-        self.process_tracker: ProcessTracker = ProcessTracker()
+        self.editor_tracker: EditorTracker = EditorTracker()
+
     async def run(self) -> None:
         await self.on_init()
         while self.running:
@@ -53,7 +51,7 @@ class App:
 
     async def on_init(self):
         self._configure_signals()
-        await self.data_handler.on_init()
+        await self.persistence.on_init()
 
     def _configure_signals(self):
         self.loop = asyncio.get_running_loop()
@@ -65,21 +63,21 @@ class App:
         )
 
     def _update_data(self) -> None:
-        editor_list: list[EditorProcess] = self.process_tracker.get_processes()
-        self.data.update(editor_list)
+        editors: list[EditorProcess] = self.process_tracker.get_processes()
+        self.persistence.update(editors)
 
     async def _save_data(self):
-        await self.data_handler.update(self.data)
+        await self.persistence.update(self.data)
 
     async def _check_synced(self) -> None:
-        retval: bool = await self.data_handler.is_synced()
+        retval: bool = await self.persistence.is_synced()
         if retval:
-            self.data_handler.erase_data()
+            self.persistence.erase_data()
             self.data.reset_data()
 
     async def _signal_handler(self):
         await self._save_data()
-        await self.data_handler.terminate()
+        await self.persistence.terminate()
         self.running = False
 
 

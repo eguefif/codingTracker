@@ -21,7 +21,10 @@ class Connexion:
             print(f"Exception while connecting: {e}")
             self.state = False
             return
-        print("Established connection with:", self.writer.get_extra_info("peername"))
+        print(
+            "Established connection with:",
+            self.writer.get_extra_info("peername"),
+        )
         self.state = True
 
     async def update(self, data: Data) -> None:
