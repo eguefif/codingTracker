@@ -1,12 +1,14 @@
 UNIT_TESTS = ./tests/test_process.py \
-		./tests/test_session.py
+		./tests/test_session.py \
+		./tests/test_sqlhandler.py
 		#./tests/test_connexion.py \
 		#./tests/test_filehandler.py \
 		#./tests/test_datahandler.py \
 		#./tests/test_client.py
 
 SRC = ./codingTracker/process.py \
-	  ./codingTracker/session.py
+	  ./codingTracker/session.py \
+	  ./codingTracker/sqlhandler.py
 	  #./codingTracker/connexion.py
 	  #./codingTracker/client.py
 	  #./codingTracker/persistence.py
@@ -19,6 +21,7 @@ SRC = ./codingTracker/process.py \
 test:
 	#./tests/server_for_test.py &
 	pytest -vv $(UNIT_TESTS)
+	rm ./tests/db_test.db
 	#pgrep server_for | xargs kill
 	#codingTrackerServer &
 	#pytest -vv $(SERVER_TESTS)

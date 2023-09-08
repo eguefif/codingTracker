@@ -15,7 +15,7 @@ class Persistence:
         self.connexion: Connexion = Connexion(host=host, port=port, encoding=encoding)
         self.sql: SqlHandler = SqlHander()
         self.encoding = encoding
-        self.data: SessionTracker= SessionTracker()
+        self.sessions: SessionTracker= SessionTracker()
 
     async def on_init(self):
         try:
@@ -24,11 +24,11 @@ class Persistence:
             print("Exception while initialize connexion ", e)
 
     async def update(self, editors: list[EditorProcess]):
-        self.data.update(editors)
-        if self.connexion.state:
-            await self.connexion.update(self.data)
-        else:
-            self.sql.save(self.data)
+        self.sessions.update(editors)
+        #if self.connexion.state:
+        #    await self.connexion.update(self.data)
+        #else:
+        self.sql.update(self.sessions.data)
 
     def erase_data(self) -> None:
         self.file_handler.erase_data()
@@ -41,3 +41,4 @@ class Persistence:
 
     async def terminate(self):
         await self.connexion.terminate_connection()
+        self.sql.terminate()

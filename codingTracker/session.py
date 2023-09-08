@@ -25,6 +25,13 @@ class SessionTracker:
         self._running_editors(editors)
         self._ending_session(editors)
 
+    def active_sessions(self) -> int:
+        counter: int = 0
+        for session in self.data:
+            if session.running:
+                counter += 1
+        return counter
+
     def _running_editors(self, editors: list[EditorProcess]) -> None:
         for editor in editors:
             if self._is_new_language(editor.language):

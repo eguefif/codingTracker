@@ -54,7 +54,6 @@ class EditorProcess:
             return ""
 
     def _get_start_time(self, today: date) -> float:
-        print(today)
         time_str: str = self._get_times()[0]
         epoch: float = mktime(today.timetuple())
         hours: float = float(time_str[:2])
