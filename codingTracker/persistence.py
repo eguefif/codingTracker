@@ -28,7 +28,7 @@ class Persistence:
         if self.connexion.state:
             await self.connexion.update(self.sessions)
         else:
-        self.sql.update(self.sessions.data)
+            self.sql.update(self.sessions.data)
 
     def erase_data(self) -> None:
         self.file_handler.erase_data()
