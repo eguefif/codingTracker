@@ -1,22 +1,6 @@
-Right now:
-	-finir test process. Think to use the first list of str for a parametrize test.
 Todo:
-	- Modify data structure:
-		Problem:
-			At the moment, when you stop coding in one language and start again, it will capture the whole span
-			starting from the first time you coded in the day to the last time without discarding what happened
-			when you took a break.
-		Data structure to use:
-			- Name: session
-			- Date: %j %y
-			- Language
-			- Running
-			- [starting_time, ending_time]
-		Explanation:
-			The Persistence class is responsible for the data saving in hard-disk. It will save each session in a sqlite database.
-			It checks
-		Design:
-			A new problem arises with this new format. How to know that a session is running or finished. We need to add a new attribute to the class: running.
+	- update server
+		use an api style to sync data with server. We don't need to handler sync db to db. We just whant to sync the self.sessions in persistence.
 
 	- Sync with server
 		Change the way client and server make sure data are synced.
@@ -24,12 +8,3 @@ Todo:
 		then respond with either a 1 for OK or something else for not okey. Then the client send everything, the server make sure everything is alright and notify the client.
 		When the client get the notification, it delete the data locally.
 		If the server is unable to sort it out, it notify the client, the client then ask the user if he can delete the data.
-	
-
-Acceptance tests
-Different situation:
-	- Always connected to server
-	- Always disconnected to server
-	- Start connected, disconnection, connection
-	- Start disconnected, connect
-	- Start disconnected, connect, disconnect, connect
