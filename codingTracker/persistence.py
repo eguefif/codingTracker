@@ -1,5 +1,5 @@
 from codingTracker.connexion import Connexion
-from codingTracker.data import Session, SessionTracker
+from codingTracker.session import Session, SessionTracker
 from codingTracker.sqlhandler import SqlHandler
 from codingTracker.process import EditorProcess
 
@@ -13,11 +13,12 @@ class Persistence:
         encoding="utf-8",
     ) -> None:
         self.connexion: Connexion = Connexion(host=host, port=port, encoding=encoding)
-        self.sql: SqlHandler = SqlHander()
+        self.sql: SqlHandler = SqlHandler()
         self.encoding = encoding
         self.sessions: SessionTracker= SessionTracker()
 
     async def on_init(self):
+        return
         try:
             await self.connexion.init_connection()
         except Exception as e:

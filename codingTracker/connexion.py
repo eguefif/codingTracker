@@ -1,7 +1,7 @@
 import asyncio
 import json
 
-from codingTracker.data import Data
+from codingTracker.session import Session
 
 
 class Connexion:
@@ -27,13 +27,13 @@ class Connexion:
         )
         self.state = True
 
-    async def update(self, data: Data) -> None:
+    async def update(self, data: Session) -> None:
         if self.state:
             message = self.get_encoded_message(data)
             await self.send_protoheader(message)
             await self.send(message)
 
-    def get_encoded_message(self, data: Data) -> bytes:
+    def get_encoded_message(self, data: Session) -> bytes:
         dump: str = json.dumps(data.data)
         encoded_message: bytes = dump.encode(self.encoding)
         return encoded_message

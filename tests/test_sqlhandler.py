@@ -39,6 +39,7 @@ list_session: tuple[tuple[float, str], ...] = (
     (514131231.0, "c++"),
 )
 
+
 @pytest.fixture
 def sessions() -> list[Session]:
     return [Session(s[0], s[1]) for s in list_session]
@@ -51,7 +52,8 @@ def test_sqlhandler_update(sessions) -> None:
     values: list[tuple[str, float]]
     for s in list_session:
         retval = sql.cursor.execute(
-            f"SELECT starttime, language FROM sessions WHERE startime={s[0]}"
+            "SELECT start_time, language FROM sessions WHERE start_time=:start_time",
+            ({"start_time": s[0]}),
         )
         values = retval.fetchall()
         assert len(values) == 1

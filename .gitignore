@@ -3,6 +3,7 @@ data_server.dat
 temp
 client.cfg
 server.cfg
+client_database.db
 #Vim
 # Swap
 [._]*.s[a-v][a-z]

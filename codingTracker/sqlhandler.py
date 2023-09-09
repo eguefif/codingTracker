@@ -14,7 +14,7 @@ class SqlHandler:
         if table is None:
             self.cursor.execute(
                 "CREATE TABLE sessions ("
-                "language varchar(50), start_time float, end_time float, running bool)"
+                "language VARCHAR(50), start_time FLOAT, end_time FLOAT, running BOOL)"
             )
 
     def update(self, sessions: list[Session]) -> None:
@@ -31,20 +31,33 @@ class SqlHandler:
 
     def _insert(self, session: Session) -> None:
         self.cursor.execute(
-            "INSERT INTO sessions (language, start_time, end_time, running) VALUES "
-            f"({session.language},"
-            f"{session.start_time},"
-            f"{session.end_time},"
-            f"{session.running})"
+            "INSERT INTO sessions (language, start_time, end_time, running)"
+            "VALUES (:language, :start_time, :end_time, :running)",
+            (
+                {
+                    "language": session.language,
+                    "start_time": session.start_time,
+                    "end_time": session.end_time,
+                    "running": session.running,
+                }
+            ),
         )
 
     def _update_row(self, session: Session) -> None:
         self.cursor.execute(
-            "UPDATE sessions SET "
-            f"end_time={session.end_time},"
-            f"running={session.running})"
-            f"WHERE start_time={session.start_time}"
+            "UPDATE sessions SET end_time=:end_time, running=:running WHERE start_time=:start_time",
+            (
+                {
+                    "end_time": session.end_time,
+                    "running": session.running,
+                    "start_time": session.start_time,
+                }
+            ),
         )
 
     def terminate(self) -> None:
         self.con.close()
+
+    def delete(self) -> None:
+        self.cursor.execute("DROP TABLE sessions")
+        self.con.commit()

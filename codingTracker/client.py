@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 from time import sleep
 
-from codingTracker.datahandler import Persistence
+from codingTracker.persistence import Persistence
 from codingTracker.process import EditorProcess, EditorTracker
 
 
@@ -44,9 +44,8 @@ class App:
     async def run(self) -> None:
         await self.on_init()
         while self.running:
-            self._update_data()
-            await self._save_data()
-            await asyncio.wait_for(self._check_synced(), 1)
+            await self._update_data()
+            #await asyncio.wait_for(self._check_synced(), 1)
             await asyncio.sleep(self.sleeping_time)
 
     async def on_init(self):
@@ -62,12 +61,9 @@ class App:
             signal.SIGTERM, lambda: asyncio.create_task(self._signal_handler())
         )
 
-    def _update_data(self) -> None:
-        editors: list[EditorProcess] = self.process_tracker.get_processes()
-        self.persistence.update(editors)
-
-    async def _save_data(self):
-        await self.persistence.update(self.data)
+    async def _update_data(self) -> None:
+        editors: list[EditorProcess] = self.editor_tracker.get_editors()
+        await self.persistence.update(editors)
 
     async def _check_synced(self) -> None:
         retval: bool = await self.persistence.is_synced()
@@ -76,7 +72,7 @@ class App:
             self.data.reset_data()
 
     async def _signal_handler(self):
-        await self._save_data()
+        await self._update_data()
         await self.persistence.terminate()
         self.running = False
 
