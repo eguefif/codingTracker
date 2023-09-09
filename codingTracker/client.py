@@ -13,16 +13,17 @@ class App:
     def __init__(
         self,
         sleeping_time: int = 5,
-        host="127.0.0.1",
-        port=10000,
-        path="./data.dat",
-        encoding="utf-8",
+        host: str ="127.0.0.1",
+        port: int =10000,
+        path: str ="./data.dat",
+        encoding: str="utf-8",
+        cfg_file_path: str = "./client.cfg",
     ):
-        cfg_path = Path("./client.cfg")
+        cfg_path: Path = Path(cfg_file_path)
         if cfg_path.exists():
             with open(cfg_path, "r") as f:
-                cfg_file = json.load(f)
-            self.sleeping_time = cfg_file["sleeping_time"]
+                cfg_file: dict[str, int | str] = json.load(f)
+            self.sleeping_time: int = cfg_file["sleeping_time"]
             self.persistence: Persistence = Persistence(
                 file_path=cfg_file["path"],
                 host=cfg_file["ip"],

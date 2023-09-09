@@ -5,20 +5,19 @@ from codingTracker.process import EditorProcess
 
 
 class Persistence:
-    def __init__(
-        self,
-        file_path="./data.dat",
-        host="127.0.0.1",
-        port=10000,
-        encoding="utf-8",
+    def __init__( self,
+            file_path: str = None,
+            host: str = None,
+            port: int = None,
+            encoding: str = None,
     ) -> None:
         self.connexion: Connexion = Connexion(host=host, port=port, encoding=encoding)
-        self.sql: SqlHandler = SqlHandler()
+        self.sql: SqlHandler = SqlHandler(file_path)
         self.encoding = encoding
-        self.sessions: SessionTracker= SessionTracker()
+        data: list[tuple[str, float, float, bool]] = self.sql.get_data()
+        self.sessions = SessionTracker(data)
 
     async def on_init(self):
-        return
         try:
             await self.connexion.init_connection()
         except Exception as e:
@@ -26,9 +25,9 @@ class Persistence:
 
     async def update(self, editors: list[EditorProcess]):
         self.sessions.update(editors)
-        #if self.connexion.state:
-        #    await self.connexion.update(self.data)
-        #else:
+        if self.connexion.state:
+            await self.connexion.update(self.sessions)
+        else:
         self.sql.update(self.sessions.data)
 
     def erase_data(self) -> None:

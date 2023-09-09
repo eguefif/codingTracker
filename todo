@@ -1,11 +1,6 @@
 Right now:
 	-finir test process. Think to use the first list of str for a parametrize test.
 Todo:
-	- Setup just for client
-		Remove server question
-		Check input
-		Make default value work
-		Change the way it works, make a data oriented function
 	- Modify data structure:
 		Problem:
 			At the moment, when you stop coding in one language and start again, it will capture the whole span

@@ -55,6 +55,12 @@ class SqlHandler:
             ),
         )
 
+    def get_data(self) -> list[tuple[str, float, float, bool]]:
+        retcur: sqlite3.Cursor = self.cursor.execute(
+                "SELECT * FROM sessions"
+                )
+        return retcur.fetchall()
+
     def terminate(self) -> None:
         self.con.close()
 

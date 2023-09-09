@@ -5,21 +5,31 @@ from codingTracker.process import EditorProcess
 
 class Session:
     def __init__(
-        self, start_time: float, language: str, day_format: str = "%j %y"
+            self, start_time: float,
+            language: str,
+            end_time: float = None,
+            running: bool = True,
+            day_format: str = "%j %y"
     ):
         self.language = language
         self.start_time: float = start_time
-        self.end_time: float = start_time + 0.1
+        if end_time:
+            self.end_time: float = end_time
+        else:
+            self.end_time = start_time + 0.1
         self.day = strftime(day_format)
-        self.running = True
+        self.running = running
 
     def update_endtime(self) -> None:
         self.end_time = time()
 
 
 class SessionTracker:
-    def __init__(self) -> None:
-        self.data: list[Session] = []
+    def __init__(self, data: list[tuple[str, float, float, bool]]) -> None:
+        if data:
+            self.data = [Session(row[1], row[0], row[2], row[3]) for row in list]
+        else:
+            self.data: list[Session] = []
 
     def update(self, editors: list[EditorProcess]) -> None:
         self._running_editors(editors)
